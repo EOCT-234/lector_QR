@@ -1,5 +1,5 @@
-// Pega aquí la URL que copiaste en el Paso 3
-const SAVE_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyDdjiaVWwj7fOKlJ1UlyECgcLaIG0mKUWdS-a-YzGn11j7sENjPi1qCd7BBUgBedJa/exec";
+// URL desplegada de Google Apps Script
+const SAVE_WEB_APP_URL = "hhttps://script.google.com/macros/s/AKfycbwd2fVU1P04MmfMvkQM8U4bYYB_PZsjjRsCf_ZCjaSFpMM3OIqejR0ZpPmsV2tMHOM2/exec";
 
 /**
  * Obtiene la columna 'variable' de la hoja 'descriptores' mediante exportación pública CSV.
@@ -68,20 +68,23 @@ async function fetchDescriptorsVariables(sheetUrl) {
 }
 
 /**
- * Envía la orden a Apps Script en modo no-cors de forma garantizada
+ * Envía el enlace a Apps Script como parámetros de formulario compatibles con no-cors
  */
 async function saveRecordToSheets(data) {
-  if (!SAVE_WEB_APP_URL || SAVE_WEB_APP_URL.includes("TU_NUEVA_URL_AQUI")) {
-    throw new Error("Falta configurar la URL válida de Apps Script");
+  if (!SAVE_WEB_APP_URL) {
+    throw new Error("Falta configurar la URL de Apps Script en SAVE_WEB_APP_URL");
   }
+
+  const formData = new URLSearchParams();
+  formData.append("sheetUrl", data.sheetUrl);
 
   await fetch(SAVE_WEB_APP_URL, {
     method: "POST",
     mode: "no-cors",
     headers: {
-      "Content-Type": "text/plain;charset=utf-8"
+      "Content-Type": "application/x-www-form-urlencoded"
     },
-    body: JSON.stringify({ sheetUrl: data.sheetUrl })
+    body: formData.toString()
   });
 
   return { status: "success" };
