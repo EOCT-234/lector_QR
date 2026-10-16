@@ -1,9 +1,9 @@
 // URL de la aplicación web desplegada en Google Apps Script
-const SAVE_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyzR-m9T94BpPtq557bo87d7JVog4lUlHoDymRZW1oM8B2vnVmLLwlmk1we0Y91e1wQ/exec";
+const SAVE_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyQchGgtd0--Dj_Dsij0knnDEiMf7Hs5mSYEW5iUOLuYCOkq9f_lFwaw_VrseOOcyI/exec";
 
 /**
  * Obtiene la columna 'variable' de la hoja 'descriptores' mediante exportación pública CSV.
- * Compatible con delimitadores dinámicos (comas o tabulaciones).
+ * Soporta delimitadores dinámicos (comas o tabulaciones).
  */
 async function fetchDescriptorsVariables(sheetUrl) {
   if (!sheetUrl) {
@@ -69,21 +69,20 @@ async function fetchDescriptorsVariables(sheetUrl) {
 }
 
 /**
- * Envía la solicitud a Google Apps Script para crear/verificar la pestaña 'registro'
+ * Envía la solicitud a Google Apps Script para crear la hoja 'registro' al lado de 'descriptores'
  */
 async function saveRecordToSheets(data) {
   if (!SAVE_WEB_APP_URL) {
     throw new Error("Falta configurar la URL de Apps Script en SAVE_WEB_APP_URL");
   }
 
-  // Envío sin CORS restrictivo para permitir la llamada desde cualquier origen
   await fetch(SAVE_WEB_APP_URL, {
     method: "POST",
     mode: "no-cors",
     headers: {
       "Content-Type": "text/plain;charset=utf-8"
     },
-    body: JSON.stringify(data)
+    body: JSON.stringify({ sheetUrl: data.sheetUrl })
   });
 
   return { status: "success" };
