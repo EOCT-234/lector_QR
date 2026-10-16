@@ -5,37 +5,32 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Lector QR</title>
   
-  <!-- Enlace al archivo de estilos externo -->
   <link rel="stylesheet" href="style.css">
-
-  <!-- Librería externa para escanear QR -->
   <script src="https://unpkg.com/html5-qrcode"></script>
 </head>
 <body>
 
-  <main class="container">
-    <h1>Escáner QR</h1>
-    <p class="subtitle">Escanea un código para ver su contenido</p>
+  <main class="app-container">
+    <!-- Columna Izquierda: Lector QR -->
+    <section class="scanner-section">
+      <div id="reader"></div>
+    </section>
 
-    <!-- Contenedor de la cámara -->
-    <div id="reader"></div>
+    <!-- Columna Derecha: Resultado y Botón -->
+    <section class="result-section">
+      <div class="result-box">
+        <label for="qr-result-text">Texto del QR</label>
+        <textarea id="qr-result-text" readonly placeholder="El texto leído aparecerá aquí..."></textarea>
+      </div>
 
-    <!-- Panel de estado y resultados -->
-    <div id="status-card" class="card hidden">
-      <h3>Último Código Leído</h3>
-      
-      <!-- Campo donde se muestra el texto del QR -->
-      <textarea id="qr-result-text" readonly class="qr-textarea"></textarea>
-      
-      <!-- Botón para copiar el texto -->
-      <button id="copy-btn" class="btn-copy">Copiar Texto</button>
-      
-      <!-- Estado del envío a Google Sheets (permanecerá oculto si no hay URL) -->
+      <button id="copy-btn" class="btn-copy">COPIAR TEXTO</button>
+
+      <!-- Mensaje de estado (oculto por defecto) -->
       <div id="sync-status" class="status-msg"></div>
-    </div>
+    </section>
   </main>
 
-  <!-- Enlace a tus archivos modulares en la carpeta js/ -->
+  <!-- Scripts -->
   <script src="js/sheets.js"></script>
   <script src="js/qrScanner.js"></script>
   <script src="js/main.js"></script>

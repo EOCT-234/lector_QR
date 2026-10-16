@@ -2,121 +2,140 @@
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background-color: #f0f2f5;
-  color: #333;
+  background-color: #f0f4f8;
   display: flex;
   justify-content: center;
-  padding: 20px;
+  align-items: center;
+  min-height: 100vh;
+  padding: 15px;
 }
 
-.container {
+/* Contenedor principal en 2 columnas */
+.app-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+  max-width: 800px;
   width: 100%;
-  max-width: 480px;
-  background: #ffffff;
-  padding: 24px;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  text-align: center;
+  background: transparent;
 }
 
-h1 {
-  font-size: 1.5rem;
-  margin-bottom: 8px;
-  color: #1a73e8;
-}
-
-.subtitle {
-  font-size: 0.9rem;
-  color: #666;
-  margin-bottom: 20px;
+/* --- COLUMNA IZQUIERDA: LECTOR QR --- */
+.scanner-section {
+  background-color: #175d7e;
+  border: 3px solid #0d3b52;
+  border-radius: 8px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 260px;
+  padding: 10px;
 }
 
 #reader {
   width: 100%;
-  border-radius: 8px;
-  overflow: hidden;
-  border: 1px solid #ddd;
+  border: none !important;
 }
 
-.card {
-  margin-top: 20px;
-  padding: 16px;
-  border-radius: 8px;
-  background-color: #f8f9fa;
-  border: 1px solid #e9ecef;
-}
-
-.hidden {
-  display: none;
-}
-
-.qr-text {
-  font-weight: bold;
-  word-break: break-all;
-  margin: 10px 0;
-  font-size: 1.1rem;
-  color: #212529;
-}
-
-/* --- ESTILOS AGREGADOS PARA LA CAJA DE TEXTO Y EL BOTÓN --- */
-.qr-textarea {
-  width: 100%;
-  height: 70px;
-  margin: 12px 0 8px 0;
-  padding: 8px;
-  border: 1px solid #ccc;
+/* Personalización del lector HTML5 QR */
+#reader video {
   border-radius: 6px;
-  font-family: inherit;
+  object-fit: cover;
+}
+
+#reader__scan_region {
+  background: transparent !important;
+}
+
+#reader__dashboard {
+  color: #ffffff;
+  font-size: 0.85rem;
+}
+
+/* --- COLUMNA DERECHA: RESULTADOS --- */
+.result-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.result-box {
+  background-color: #175d7e;
+  border: 3px solid #0d3b52;
+  border-radius: 8px;
+  padding: 12px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.result-box label {
+  color: #ffffff;
+  font-weight: bold;
+  font-size: 1.1rem;
+  margin-bottom: 8px;
+  display: block;
+}
+
+.result-box textarea {
+  width: 100%;
+  flex: 1;
+  min-height: 120px;
+  background: transparent;
+  border: none;
+  color: #ffffff;
   font-size: 0.95rem;
   resize: none;
-  background-color: #ffffff;
-  color: #212529;
+  outline: none;
 }
 
+.result-box textarea::placeholder {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+/* Botón Copiar Texto */
 .btn-copy {
-  background-color: #1a73e8;
-  color: white;
-  border: none;
-  padding: 10px 18px;
-  font-size: 0.9rem;
+  background-color: #175d7e;
+  border: 3px solid #0d3b52;
+  border-radius: 8px;
+  color: #ffffff;
   font-weight: bold;
-  border-radius: 6px;
+  font-size: 1rem;
+  padding: 14px;
   cursor: pointer;
-  transition: background-color 0.2s ease;
-  margin-bottom: 12px;
+  text-align: center;
+  transition: background-color 0.2s ease, transform 0.1s ease;
   width: 100%;
 }
 
 .btn-copy:hover {
-  background-color: #1557b0;
+  background-color: #134c67;
 }
 
 .btn-copy:active {
-  background-color: #0d47a1;
+  transform: scale(0.98);
 }
 
-/* --- ESTADOS DE MENSAJE --- */
+/* Mensaje de estado (Google Sheets) */
 .status-msg {
-  font-size: 0.9rem;
-  padding: 8px;
+  font-size: 0.85rem;
+  text-align: center;
+  padding: 6px;
   border-radius: 4px;
 }
 
-.status-msg.sending {
-  background-color: #fff3cd;
-  color: #856404;
-}
+.status-msg.sending { color: #d97706; }
+.status-msg.success { color: #059669; }
+.status-msg.error { color: #dc2626; }
 
-.status-msg.success {
-  background-color: #d4edda;
-  color: #155724;
-}
-
-.status-msg.error {
-  background-color: #f8d7da;
-  color: #721c24;
+/* Responsive: En pantallas de celular se colocan uno debajo del otro */
+@media (max-width: 600px) {
+  .app-container {
+    grid-template-columns: 1fr;
+  }
 }
