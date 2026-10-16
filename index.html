@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Lector QR a Google Sheets</title>
+  <title>Lector QR</title>
   
   <!-- Enlace al archivo de estilos externo -->
   <link rel="stylesheet" href="style.css">
@@ -14,8 +14,8 @@
 <body>
 
   <main class="container">
-    <h1>Escáner QR y Registro</h1>
-    <p class="subtitle">Escanea un código para enviar los datos a Google Sheets</p>
+    <h1>Escáner QR</h1>
+    <p class="subtitle">Escanea un código para ver su contenido</p>
 
     <!-- Contenedor de la cámara -->
     <div id="reader"></div>
@@ -30,122 +30,14 @@
       <!-- Botón para copiar el texto -->
       <button id="copy-btn" class="btn-copy">Copiar Texto</button>
       
-      <!-- Estado del envío a Google Sheets -->
+      <!-- Estado del envío a Google Sheets (permanecerá oculto si no hay URL) -->
       <div id="sync-status" class="status-msg"></div>
     </div>
   </main>
 
-  <!-- Lógica en JavaScript -->
-  <script>
-    // ⚠️ REEMPLAZA ESTA URL CON LA QUE TE DÉ GOOGLE APPS SCRIPT
-    const GOOGLE_SHEETS_SCRIPT_URL = "AQUI_VA_TU_URL_DE_APPS_SCRIPT";
-
-    let isProcessing = false;
-
-    // Inicializar la cámara al cargar la página
-    document.addEventListener("DOMContentLoaded", () => {
-      const html5QrcodeScanner = new Html5QrcodeScanner(
-        "reader",
-        {
-          fps: 10,
-          qrbox: { width: 250, height: 250 }
-        },
-        /* verbose= */ false
-      );
-
-      html5QrcodeScanner.render(handleQrScanned, (error) => {
-        // Errores cuadro a cuadro de la cámara (se ignoran)
-      });
-
-      // Evento para el botón de copiar
-      document.getElementById("copy-btn").addEventListener("click", copyToClipboard);
-    });
-
-    // Función que procesa el escaneo del QR
-    async function handleQrScanned(qrText) {
-      if (isProcessing) return;
-      isProcessing = true;
-
-      const statusCard = document.getElementById("status-card");
-      const qrResultText = document.getElementById("qr-result-text");
-      const syncStatusEl = document.getElementById("sync-status");
-      const copyBtn = document.getElementById("copy-btn");
-
-      // Mostrar contenedor
-      statusCard.classList.remove("hidden");
-      qrResultText.value = qrText;
-      copyBtn.textContent = "Copiar Texto"; // Restablecer texto del botón
-
-      // Estado visual: Enviando
-      syncStatusEl.className = "status-msg sending";
-      syncStatusEl.textContent = "Guardando en Google Sheets...";
-
-      // Enviar datos
-      const success = await sendToGoogleSheets(qrText);
-
-      if (success) {
-        syncStatusEl.className = "status-msg success";
-        syncStatusEl.textContent = "¡Registrado con éxito en Google Sheets!";
-      } else {
-        syncStatusEl.className = "status-msg error";
-        syncStatusEl.textContent = "Error al guardar los datos.";
-      }
-
-      // Evitar lecturas duplicadas inmediatas (espera 3 segundos)
-      setTimeout(() => {
-        isProcessing = false;
-      }, 3000);
-    }
-
-    // Función para copiar el texto al portapapeles
-    function copyToClipboard() {
-      const qrResultText = document.getElementById("qr-result-text");
-      const copyBtn = document.getElementById("copy-btn");
-
-      if (!qrResultText.value) return;
-
-      // Usar la API de Portapapeles del navegador
-      navigator.clipboard.writeText(qrResultText.value)
-        .then(() => {
-          copyBtn.textContent = "¡Copiado!";
-          setTimeout(() => {
-            copyBtn.textContent = "Copiar Texto";
-          }, 2000);
-        })
-        .catch(err => {
-          // Si falla (browsers antiguos), intentar método alternativo
-          qrResultText.select();
-          document.execCommand('copy');
-          copyBtn.textContent = "¡Copiado!";
-          setTimeout(() => {
-            copyBtn.textContent = "Copiar Texto";
-          }, 2000);
-        });
-    }
-
-    // Función que se conecta con la API de Google Apps Script
-    async function sendToGoogleSheets(qrData) {
-      try {
-        const payload = {
-          qrData: qrData,
-          timestamp: new Date().toISOString()
-        };
-
-        await fetch(GOOGLE_SHEETS_SCRIPT_URL, {
-          method: "POST",
-          mode: "no-cors",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify(payload)
-        });
-
-        return true;
-      } catch (error) {
-        console.error("Error al enviar a Google Sheets:", error);
-        return false;
-      }
-    }
-  </script>
+  <!-- Enlace a tus archivos modulares en la carpeta js/ -->
+  <script src="js/sheets.js"></script>
+  <script src="js/qrScanner.js"></script>
+  <script src="js/main.js"></script>
 </body>
 </html>
