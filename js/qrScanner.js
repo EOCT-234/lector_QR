@@ -1,30 +1,30 @@
 let html5QrcodeScanner = null;
 
 /**
- * Inicializa el escáner de códigos QR usando la cámara del dispositivo.
- * @param {Function} onSuccessCallback - Función que se ejecuta al detectar un QR.
+ * Inicializa el escáner de códigos QR usando la librería html5-qrcode.
+ * @param {Function} onSuccessCallback - Función que se ejecuta cuando se lee un código QR.
  */
 function initQrScanner(onSuccessCallback) {
-  // Crear la instancia del lector en el contenedor con id "reader"
+  // Crear la instancia del lector en el elemento con id="reader"
   html5QrcodeScanner = new Html5QrcodeScanner(
     "reader",
     {
       fps: 10,
-      qrbox: { width: 180, height: 180 } // Tamaño visual ajustado al nuevo diseño compacto
+      qrbox: { width: 180, height: 180 } // Caja de enfoque compacta ajustada a la columna izquierda
     },
     /* verbose= */ false
   );
 
-  // Renderizar la cámara y escuchar detecciones
+  // Iniciar la cámara y escuchar detecciones
   html5QrcodeScanner.render(
-    (decodedText, decodedResult) => {
-      // Envía el texto escaneado a main.js
+    function(decodedText) {
+      // Envía el texto detectado a la función de callback (handleQrScanned en main.js)
       if (typeof onSuccessCallback === "function") {
         onSuccessCallback(decodedText);
       }
     },
-    (errorMessage) => {
-      // Se ignoran los errores fotograma a fotograma cuando no detecta un QR
+    function(errorMessage) {
+      // Errores Cuadro a Cuadro cuando no hay un QR frente a la cámara (se ignoran)
     }
   );
 }
