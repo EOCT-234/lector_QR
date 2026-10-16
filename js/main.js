@@ -1,32 +1,3 @@
-let isProcessing = false;
-
-document.addEventListener("DOMContentLoaded", () => {
-  // Inicialización segura del lector QR
-  if (typeof initQrScanner === "function") {
-    initQrScanner(handleQrScanned);
-  } else {
-    console.error("No se encontró la función initQrScanner en js/qrScanner.js");
-  }
-
-  // Inicialización de Pestañas
-  initTabs();
-
-  // Evento Botón Copiar Texto
-  const copyBtn = document.getElementById("copy-btn");
-  if (copyBtn) {
-    copyBtn.addEventListener("click", copyToClipboard);
-  }
-
-  // Evento Botón CARGAR en la pestaña Google Sheets
-  const btnCargar = document.getElementById("btn-cargar");
-  if (btnCargar) {
-    btnCargar.addEventListener("click", handleCargarVariables);
-  }
-});
-
-/**
- * Procesa la carga de variables desde Apps Script
- */
 async function handleCargarVariables() {
   const urlInput = document.getElementById("sheet-url-input");
   const statusCarga = document.getElementById("status-carga");
@@ -57,76 +28,10 @@ async function handleCargarVariables() {
     if (statusCarga) statusCarga.textContent = "Carga exitosa";
 
   } catch (error) {
-    console.error("Error al cargar desde Sheets:", error);
-    if (statusCarga) statusCarga.textContent = "Error al cargar";
+    console.error("Detalle del error:", error);
+    if (statusCarga) {
+      // Muestra el mensaje de error real recibido desde Apps Script
+      statusCarga.textContent = typeof error === 'string' ? error : (error.message || "Error al cargar");
+    }
   }
-}
-
-/**
- * Control de navegación por Pestañas
- */
-function initTabs() {
-  const tabButtons = document.querySelectorAll(".tab-btn");
-  const tabContents = document.querySelectorAll(".tab-content");
-
-  tabButtons.forEach((btn) => {
-    btn.addEventListener("click", () => {
-      tabButtons.forEach((b) => b.classList.remove("active"));
-      tabContents.forEach((content) => content.classList.add("hidden"));
-
-      btn.classList.add("active");
-      const targetId = btn.getAttribute("data-tab");
-      const targetContent = document.getElementById(targetId);
-      
-      if (targetContent) {
-        targetContent.classList.remove("hidden");
-      }
-    });
-  });
-}
-
-/**
- * Captura el texto del QR escaneado
- */
-function handleQrScanned(qrText) {
-  if (isProcessing) return;
-  isProcessing = true;
-
-  const qrResultText = document.getElementById("qr-result-text");
-  const accesionInput = document.getElementById("accesion-input");
-  const copyBtn = document.getElementById("copy-btn");
-
-  if (qrResultText) qrResultText.value = qrText;
-  if (accesionInput) accesionInput.value = qrText;
-  if (copyBtn) copyBtn.textContent = "COPIAR TEXTO";
-
-  setTimeout(() => {
-    isProcessing = false;
-  }, 2500);
-}
-
-/**
- * Copiar texto al portapapeles
- */
-function copyToClipboard() {
-  const qrResultText = document.getElementById("qr-result-text");
-  const copyBtn = document.getElementById("copy-btn");
-
-  if (!qrResultText || !qrResultText.value) return;
-
-  navigator.clipboard.writeText(qrResultText.value)
-    .then(() => {
-      copyBtn.textContent = "¡COPIADO!";
-      setTimeout(() => {
-        copyBtn.textContent = "COPIAR TEXTO";
-      }, 2000);
-    })
-    .catch(() => {
-      qrResultText.select();
-      document.execCommand('copy');
-      copyBtn.textContent = "¡COPIADO!";
-      setTimeout(() => {
-        copyBtn.textContent = "COPIAR TEXTO";
-      }, 2000);
-    });
 }

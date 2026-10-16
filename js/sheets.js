@@ -1,42 +1,41 @@
+// URL actualizada de la aplicación web (Versión 6)
 const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzQv94yEEN6HMHS58VGdvMNBtq8au6UptL-Zu3ujqEeRpoWuwQXImuv_2zhCs9IMwC92A/exec";
 
 /**
- * Petición mediante JSONP para evitar bloqueos de CORS de Google Apps Script
+ * Solicita a Apps Script la lista de variables usando JSONP
  */
 function fetchDescriptorsVariables(sheetUrl) {
   return new Promise((resolve, reject) => {
-    if (!sheetUrl || !sheetUrl.includes("docs.google.com/spreadsheets")) {
-      return reject("Por favor ingresa un enlace válido de Google Sheets.");
+    // Limpiar espacios y caracteres extraños de la URL ingresada
+    let cleanUrl = sheetUrl ? sheetUrl.trim().replace(/\\/g, '') : "";
+
+    if (!cleanUrl || !cleanUrl.includes("docs.google.com/spreadsheets")) {
+      return reject("Enlace no válido de Google Sheets");
     }
 
-    // Genera un nombre de función callback único
-    const callbackName = "jsonp_callback_" + Math.round(100000 * Math.random());
-
-    // Crea el elemento script dinámico
+    const callbackName = "jsonp_cb_" + Math.round(100000 * Math.random());
     const script = document.createElement("script");
-    const encodedUrl = encodeURIComponent(sheetUrl);
+    const encodedUrl = encodeURIComponent(cleanUrl);
+    
     script.src = `${WEB_APP_URL}?sheetUrl=${encodedUrl}&callback=${callbackName}`;
 
-    // Tiempo límite de respuesta (10 segundos)
     const timeout = setTimeout(() => {
       cleanup();
-      reject("Tiempo de espera agotado. Verifica el enlace y el despliegue del script.");
-    }, 10000);
+      reject("Tiempo agotado: Revisa el enlace y el acceso de la hoja");
+    }, 12000);
 
-    // Definición de la función global temporal para recibir los datos
     window[callbackName] = function(data) {
       cleanup();
       if (data && data.status === "success" && Array.isArray(data.variables)) {
         resolve(data.variables);
       } else {
-        reject(data ? data.message : "Error al obtener las variables.");
+        reject(data ? data.message : "Error al obtener variables");
       }
     };
 
-    // Manejo de error en la petición
     script.onerror = function() {
       cleanup();
-      reject("Error de conexión al intentar comunicarse con Apps Script.");
+      reject("Error de conexión con Apps Script");
     };
 
     function cleanup() {
@@ -45,7 +44,6 @@ function fetchDescriptorsVariables(sheetUrl) {
       delete window[callbackName];
     }
 
-    // Inserta el script para disparar la llamada a Apps Script
     document.body.appendChild(script);
   });
 }
