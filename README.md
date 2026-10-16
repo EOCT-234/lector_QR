@@ -4,7 +4,7 @@ Página web responsiva para escanear códigos QR utilizando la cámara del dispo
 
 ## 🚀 Demo
 Puedes probar la aplicación en vivo desde el siguiente enlace:
-> **https://eoct-234.github.io/lector_QR/*
+> *https://eoct-234.github.io/lector_QR/*
 
 ## 🛠️ Tecnologías Utilizadas
 * **HTML5**: Estructura semántica del sitio.
