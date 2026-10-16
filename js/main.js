@@ -1,39 +1,40 @@
 let isProcessing = false;
 
 document.addEventListener("DOMContentLoaded", () => {
-  // 1. Limpiar el campo de enlace al iniciar
+  // 1. Limpiar campos al iniciar para que la casilla no conserve texto previo
   const urlInput = document.getElementById("sheet-url-input");
-  if (urlInput) {
-    urlInput.value = "";
-  }
+  if (urlInput) urlInput.value = "";
 
   // 2. Inicializar escáner QR
   if (typeof initQrScanner === "function") {
     initQrScanner(handleQrScanned);
   }
 
-  // 3. Navegación entre pestañas
+  // 3. Navegación entre pestañas (Lector QR / Google Sheets)
   initTabs();
 
-  // 4. Evento para copiar texto del QR
+  // 4. Eventos de botones principales
   const copyBtn = document.getElementById("copy-btn");
-  if (copyBtn) {
-    copyBtn.addEventListener("click", copyToClipboard);
-  }
+  if (copyBtn) copyBtn.addEventListener("click", copyToClipboard);
 
-  // 5. Evento para botón CARGAR (Variables)
   const btnCargar = document.getElementById("btn-cargar");
-  if (btnCargar) {
-    btnCargar.addEventListener("click", handleCargarVariables);
-  }
+  if (btnCargar) btnCargar.addEventListener("click", handleCargarVariables);
 
-  // 6. Evento para botón GUARDAR (Solicita enlace emergente y crea la hoja 'registro')
+  // El botón GUARDAR abre la ventana modal
   const btnGuardar = document.getElementById("btn-guardar");
-  if (btnGuardar) {
-    btnGuardar.addEventListener("click", handleGuardarDatos);
-  }
+  if (btnGuardar) btnGuardar.addEventListener("click", abrirModalUrl);
+
+  // Eventos de la ventana modal
+  const modalCancelBtn = document.getElementById("modal-cancel-btn");
+  if (modalCancelBtn) modalCancelBtn.addEventListener("click", cerrarModalUrl);
+
+  const modalConfirmBtn = document.getElementById("modal-confirm-btn");
+  if (modalConfirmBtn) modalConfirmBtn.addEventListener("click", confirmarGuardadoConUrl);
 });
 
+/**
+ * Control de navegación entre pestañas de la interfaz
+ */
 function initTabs() {
   const tabButtons = document.querySelectorAll(".tab-btn");
   const tabContents = document.querySelectorAll(".tab-content");
@@ -58,6 +59,9 @@ function initTabs() {
   });
 }
 
+/**
+ * Obtiene la lista de variables desde la pestaña 'descriptores'
+ */
 async function handleCargarVariables() {
   const urlInput = document.getElementById("sheet-url-input");
   const statusCarga = document.getElementById("status-carga");
@@ -95,6 +99,9 @@ async function handleCargarVariables() {
   }
 }
 
+/**
+ * Función que recibe el resultado del escáner QR
+ */
 function handleQrScanned(qrText) {
   if (isProcessing) return;
   isProcessing = true;
@@ -112,6 +119,9 @@ function handleQrScanned(qrText) {
   }, 2500);
 }
 
+/**
+ * Copia el valor del escáner QR al portapapeles
+ */
 function copyToClipboard() {
   const qrResultText = document.getElementById("qr-result-text");
   const copyBtn = document.getElementById("copy-btn");
@@ -136,38 +146,59 @@ function copyToClipboard() {
 }
 
 /**
- * Solicita el enlace mediante ventana emergente y crea la hoja 'registro'
+ * Abre la ventana modal para solicitar la URL de Google Sheets
  */
-async function handleGuardarDatos() {
+function abrirModalUrl() {
+  const modal = document.getElementById("modal-url");
+  const modalInput = document.getElementById("modal-url-input");
+  
+  // Si ya se colocó un enlace en el campo principal, lo precarga en la modal
+  const mainUrl = document.getElementById("sheet-url-input")?.value.trim();
+  if (modalInput) modalInput.value = mainUrl || "";
+
+  if (modal) modal.classList.remove("hidden");
+}
+
+/**
+ * Cierra la ventana modal
+ */
+function cerrarModalUrl() {
+  const modal = document.getElementById("modal-url");
+  if (modal) modal.classList.add("hidden");
+}
+
+/**
+ * Procesa la solicitud al presionar 'Confirmar y Crear Hoja' dentro de la modal
+ */
+async function confirmarGuardadoConUrl() {
+  const modalInput = document.getElementById("modal-url-input");
   const statusCarga = document.getElementById("status-carga");
+  const sheetUrlFinal = modalInput ? modalInput.value.trim() : "";
 
-  // Ventana emergente para pedir el enlace del libro de destino
-  const inputUrl = prompt("Ingresa el enlace de Google Sheets donde deseas guardar:");
-
-  if (!inputUrl || inputUrl.trim() === "") {
-    alert("Operación cancelada. Se requiere un enlace de Google Sheets.");
+  if (!sheetUrlFinal) {
+    alert("Por favor, ingresa un enlace válido de Google Sheets.");
     return;
   }
 
-  const sheetUrlFinal = inputUrl.trim();
+  cerrarModalUrl();
 
   const btnGuardar = document.getElementById("btn-guardar");
   if (btnGuardar) {
     btnGuardar.disabled = true;
     btnGuardar.textContent = "GUARDANDO...";
   }
-  if (statusCarga) statusCarga.textContent = "Creando hoja 'registro'...";
+  if (statusCarga) statusCarga.textContent = "Enviando solicitud...";
 
   try {
     await saveRecordToSheets({ sheetUrl: sheetUrlFinal });
 
-    if (statusCarga) statusCarga.textContent = "¡Hoja 'registro' lista!";
-    alert("Proceso ejecutado. Revisa si se creó la pestaña 'registro' en tu Google Sheets.");
+    if (statusCarga) statusCarga.textContent = "¡Solicitud enviada!";
+    alert("Proceso ejecutado. Revisa tu libro de Google Sheets para verificar si se creó la pestaña 'registro'.");
 
   } catch (error) {
     console.error("Error al guardar:", error);
     if (statusCarga) statusCarga.textContent = "Error al guardar";
-    alert("Error: " + (error.message || error));
+    alert("Error al conectar con Google Sheets: " + (error.message || error));
   } finally {
     if (btnGuardar) {
       btnGuardar.disabled = false;

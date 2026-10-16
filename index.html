@@ -3,91 +3,87 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Lector QR & Google Sheets</title>
-  
+  <title>Escáner QR y Registro de Evaluaciones</title>
   <link rel="stylesheet" href="style.css">
-  <script src="https://unpkg.com/html5-qrcode"></script>
 </head>
 <body>
 
-  <div class="main-wrapper">
+  <div class="container">
     <!-- Navegación por Pestañas -->
-    <nav class="tabs-nav">
-      <button class="tab-btn active" data-tab="tab-scanner">Lector QR</button>
-      <button class="tab-btn" data-tab="tab-sheets">Google Sheets</button>
-    </nav>
+    <div class="tabs-header">
+      <button class="tab-btn active" data-tab="qr-tab">Lector QR</button>
+      <button class="tab-btn" data-tab="sheets-tab">Google Sheets</button>
+    </div>
 
     <!-- Pestaña 1: Lector QR -->
-    <main id="tab-scanner" class="tab-content active">
-      <div class="app-container">
-        <section class="scanner-section">
-          <div id="reader" style="width: 100%;"></div>
-        </section>
-
-        <section class="result-section">
-          <div class="result-box">
-            <label for="qr-result-text">Texto del QR</label>
-            <textarea id="qr-result-text" readonly placeholder="El texto leído aparecerá aquí..."></textarea>
-          </div>
-
-          <button id="copy-btn" class="btn-copy">COPIAR TEXTO</button>
-          <div id="sync-status" class="status-msg"></div>
-        </section>
+    <div id="qr-tab" class="tab-content active">
+      <div class="qr-container">
+        <div id="reader"></div>
+        <div class="form-group">
+          <label for="qr-result-text">Texto Escaneado:</label>
+          <input type="text" id="qr-result-text" readonly placeholder="El código QR aparecerá aquí...">
+        </div>
+        <button id="copy-btn" class="btn btn-secondary btn-full">COPIAR TEXTO</button>
       </div>
-    </main>
+    </div>
 
-    <!-- Pestaña 2: Configuración de Google Sheets -->
-    <section id="tab-sheets" class="tab-content hidden">
-      <div class="sheets-container">
-        
-        <!-- Campo accesión -->
-        <div class="sheets-row full-width">
-          <input type="text" id="accesion-input" placeholder="accesión">
+    <!-- Pestaña 2: Google Sheets / Registro de Datos -->
+    <div id="sheets-tab" class="tab-content hidden">
+      
+      <div class="form-group">
+        <label for="sheet-url-input">Enlace de Google Sheets (Descriptores):</label>
+        <div class="input-with-button">
+          <input type="text" id="sheet-url-input" placeholder="https://docs.google.com/spreadsheets/d/...">
+          <button id="btn-cargar" class="btn">CARGAR</button>
         </div>
-
-        <!-- Campo enlace de Google Sheets -->
-        <div class="sheets-row full-width">
-          <input type="url" id="sheet-url-input" placeholder="enlace de Google sheets">
-        </div>
-
-        <!-- Fila 1: CARGAR y Mensaje -->
-        <div class="sheets-row">
-          <button id="btn-cargar" class="btn-fixed">CARGAR</button>
-          <div id="status-carga" class="field-dynamic">----------</div>
-        </div>
-
-        <!-- Fila 2: VARIABLE y Desplegable -->
-        <div class="sheets-row">
-          <div class="label-fixed">VARIABLE</div>
-          <select id="select-variable" class="field-dynamic select-field">
-            <option value="">---------</option>
-          </select>
-        </div>
-
-        <!-- Fila 3: REPETICIÓN (Cambiado de <div> a <input>) -->
-        <div class="sheets-row">
-          <div class="label-fixed">REPETICIÓN</div>
-          <input type="text" id="val-repeticion" class="field-dynamic" placeholder="Ingresa texto...">
-        </div>
-
-        <!-- Fila 4: MEDICIÓN (Cambiado de <div> a <input>) -->
-        <div class="sheets-row">
-          <div class="label-fixed">MEDICIÓN</div>
-          <input type="text" id="val-medicion" class="field-dynamic" placeholder="Ingresa texto...">
-        </div>
-
-        <!-- Fila Inferior: GUARDAR -->
-        <div class="sheets-footer">
-          <button id="btn-guardar" class="btn-fixed">GUARDAR</button>
-        </div>
-
       </div>
-    </section>
+
+      <div class="form-group">
+        <label for="accesion-input">Accesión / Código QR:</label>
+        <input type="text" id="accesion-input" placeholder="Accesión obtenida del QR">
+      </div>
+
+      <div class="form-group">
+        <label for="select-variable">Variable:</label>
+        <select id="select-variable">
+          <option value="">---------</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="val-repeticion">Repetición:</label>
+        <input type="number" id="val-repeticion" placeholder="Ej: 1">
+      </div>
+
+      <div class="form-group">
+        <label for="val-medicion">Medición:</label>
+        <input type="text" id="val-medicion" placeholder="Ej: 15.5">
+      </div>
+
+      <button id="btn-guardar" class="btn btn-full">GUARDAR</button>
+      <div id="status-carga" class="status-text"></div>
+
+    </div>
   </div>
 
-  <!-- Carga de scripts -->
+  <!-- Modal para ingresar el enlace de Google Sheets al presionar GUARDAR -->
+  <div id="modal-url" class="modal hidden">
+    <div class="modal-content">
+      <h3>Ingresar Google Sheets</h3>
+      <p>Pega el enlace del libro de Google Sheets donde deseas crear la pestaña <strong>registro</strong> y guardar los datos:</p>
+      <input type="text" id="modal-url-input" placeholder="https://docs.google.com/spreadsheets/d/..." />
+      <div class="modal-actions">
+        <button id="modal-cancel-btn" class="btn btn-secondary">Cancelar</button>
+        <button id="modal-confirm-btn" class="btn">Confirmar y Crear Hoja</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Carga de Librerías y Scripts -->
+  <script src="https://unpkg.com/html5-qrcode"></script>
   <script src="js/sheets.js"></script>
   <script src="js/qrScanner.js"></script>
   <script src="js/main.js"></script>
+
 </body>
 </html>
