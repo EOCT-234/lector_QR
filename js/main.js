@@ -1,7 +1,7 @@
 let isProcessing = false;
 
 document.addEventListener("DOMContentLoaded", () => {
-  // Inicialización de Lector QR
+  // Inicialización del Lector QR
   if (typeof initQrScanner === "function") {
     initQrScanner(handleQrScanned);
   }
@@ -15,7 +15,7 @@ document.addEventListener("DOMContentLoaded", () => {
     copyBtn.addEventListener("click", copyToClipboard);
   }
 
-  // Evento Botón CARGAR en Google Sheets
+  // Evento Botón CARGAR en la pestaña Google Sheets
   const btnCargar = document.getElementById("btn-cargar");
   if (btnCargar) {
     btnCargar.addEventListener("click", handleCargarVariables);
