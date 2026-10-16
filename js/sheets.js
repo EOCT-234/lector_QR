@@ -1,12 +1,7 @@
-// URL actualizada de la aplicación web (Versión 6)
 const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzQv94yEEN6HMHS58VGdvMNBtq8au6UptL-Zu3ujqEeRpoWuwQXImuv_2zhCs9IMwC92A/exec";
 
-/**
- * Solicita a Apps Script la lista de variables usando JSONP
- */
 function fetchDescriptorsVariables(sheetUrl) {
   return new Promise((resolve, reject) => {
-    // Limpiar espacios y caracteres extraños de la URL ingresada
     let cleanUrl = sheetUrl ? sheetUrl.trim().replace(/\\/g, '') : "";
 
     if (!cleanUrl || !cleanUrl.includes("docs.google.com/spreadsheets")) {
@@ -21,7 +16,7 @@ function fetchDescriptorsVariables(sheetUrl) {
 
     const timeout = setTimeout(() => {
       cleanup();
-      reject("Tiempo agotado: Revisa el enlace y el acceso de la hoja");
+      reject("Tiempo agotado: Revisa la hoja");
     }, 12000);
 
     window[callbackName] = function(data) {

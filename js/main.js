@@ -1,13 +1,15 @@
 let isProcessing = false;
 
 document.addEventListener("DOMContentLoaded", () => {
-  // Inicialización del escáner
-  startQrScanner();
-  
+  // Inicialización de Lector QR
+  if (typeof initQrScanner === "function") {
+    initQrScanner(handleQrScanned);
+  }
+
   // Inicialización de Pestañas
   initTabs();
 
-  // Evento Copiar Texto
+  // Evento Botón Copiar Texto
   const copyBtn = document.getElementById("copy-btn");
   if (copyBtn) {
     copyBtn.addEventListener("click", copyToClipboard);
@@ -20,18 +22,6 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 
-/**
- * Función auxiliar para iniciar el escáner de manera segura
- */
-function startQrScanner() {
-  if (typeof initQrScanner === "function") {
-    initQrScanner(handleQrScanned);
-  }
-}
-
-/**
- * Control de navegación por Pestañas con reinicio automático de cámara
- */
 function initTabs() {
   const tabButtons = document.querySelectorAll(".tab-btn");
   const tabContents = document.querySelectorAll(".tab-content");
@@ -48,20 +38,10 @@ function initTabs() {
       if (targetContent) {
         targetContent.classList.remove("hidden");
       }
-
-      // Reinicia el escáner de cámara cuando se selecciona la pestaña 'Lector QR'
-      if (targetId === "tab-scanner") {
-        setTimeout(() => {
-          startQrScanner();
-        }, 100);
-      }
     });
   });
 }
 
-/**
- * Procesa la carga de variables desde Apps Script (Versión 6)
- */
 async function handleCargarVariables() {
   const urlInput = document.getElementById("sheet-url-input");
   const statusCarga = document.getElementById("status-carga");
@@ -99,9 +79,6 @@ async function handleCargarVariables() {
   }
 }
 
-/**
- * Captura el texto del QR escaneado
- */
 function handleQrScanned(qrText) {
   if (isProcessing) return;
   isProcessing = true;
@@ -119,9 +96,6 @@ function handleQrScanned(qrText) {
   }, 2500);
 }
 
-/**
- * Copiar texto al portapapeles
- */
 function copyToClipboard() {
   const qrResultText = document.getElementById("qr-result-text");
   const copyBtn = document.getElementById("copy-btn");
