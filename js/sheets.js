@@ -1,5 +1,5 @@
 // URL de la aplicación web actualizada desplegada en Google Apps Script
-const SAVE_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxcBVJJdbtiI69zssqNTVgTNpIGT5K8PjyZDZZngRrZClbHiOzRxphCW2P5GMAFxJEpog/exec";
+const SAVE_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwvA-_zRgY2Hta12l4pOIYgeSFSBBP4cH742qVTkq7DbBkARcmXS_J8FCKnQFAlbvHAbA/exec";
 
 /**
  * Obtiene la columna 'variable' de la hoja 'descriptores' directamente
