@@ -1,0 +1,9 @@
+mi-proyecto-web/
+│
+├── index.html        <-- La interfaz de usuario (Estructura HTML)
+├── style.css         <-- Los estilos y diseño visual (CSS)
+│
+└── js/               <-- Carpeta para mantener ordenado el código JavaScript
+    ├── main.js       <-- Archivo principal que coordina las acciones
+    ├── qrScanner.js  <-- Lógica exclusiva para leer códigos QR
+    └── sheets.js     <-- Lógica exclusiva para leer y escribir en Google Sheets

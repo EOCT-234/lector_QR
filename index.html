@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lector QR a Google Sheets</title>
+  
+  <!-- Enlace al archivo de estilos externo -->
+  <link rel="stylesheet" href="style.css">
+
+  <!-- Librería externa para escanear QR -->
+  <script src="https://unpkg.com/html5-qrcode"></script>
+</head>
+<body>
+
+  <main class="container">
+    <h1>Escáner QR y Registro</h1>
+    <p class="subtitle">Escanea un código para enviar los datos a Google Sheets</p>
+
+    <!-- Contenedor de la cámara -->
+    <div id="reader"></div>
+
+    <!-- Panel de estado y resultados -->
+    <div id="status-card" class="card hidden">
+      <h3>Último Código Leído</h3>
+      <p id="qr-result" class="qr-text"></p>
+      <div id="sync-status" class="status-msg"></div>
+    </div>
+  </main>
+
+  <!-- Lógica en JavaScript -->
+  <script>
+    // ⚠️ REEMPLAZA ESTA URL CON LA QUE TE DÉ GOOGLE APPS SCRIPT
+    const GOOGLE_SHEETS_SCRIPT_URL = "AQUI_VA_TU_URL_DE_APPS_SCRIPT";
+
+    let isProcessing = false;
+
+    // Inicializar la cámara al cargar la página
+    document.addEventListener("DOMContentLoaded", () => {
+      const html5QrcodeScanner = new Html5QrcodeScanner(
+        "reader",
+        {
+          fps: 10,
+          qrbox: { width: 250, height: 250 }
+        },
+        /* verbose= */ false
+      );
+
+      html5QrcodeScanner.render(handleQrScanned, (error) => {
+        // Errores cuadro a cuadro (se pueden ignorar)
+      });
+    });
+
+    // Función que procesa el escaneo del QR
+    async function handleQrScanned(qrText) {
+      if (isProcessing) return;
+      isProcessing = true;
+
+      const statusCard = document.getElementById("status-card");
+      const qrResultEl = document.getElementById("qr-result");
+      const syncStatusEl = document.getElementById("sync-status");
+
+      // Mostrar contenedor
+      statusCard.classList.remove("hidden");
+      qrResultEl.textContent = qrText;
+
+      // Estado visual: Enviando
+      syncStatusEl.className = "status-msg sending";
+      syncStatusEl.textContent = "Guardando en Google Sheets...";
+
+      // Enviar datos
+      const success = await sendToGoogleSheets(qrText);
+
+      if (success) {
+        syncStatusEl.className = "status-msg success";
+        syncStatusEl.textContent = "¡Registrado con éxito en Google Sheets!";
+      } else {
+        syncStatusEl.className = "status-msg error";
+        syncStatusEl.textContent = "Error al guardar los datos.";
+      }
+
+      // Evitar lecturas duplicadas inmediatas (espera 3 segundos)
+      setTimeout(() => {
+        isProcessing = false;
+      }, 3000);
+    }
+
+    // Función que se conecta con la API de Google Apps Script
+    async function sendToGoogleSheets(qrData) {
+      try {
+        const payload = {
+          qrData: qrData,
+          timestamp: new Date().toISOString()
+        };
+
+        await fetch(GOOGLE_SHEETS_SCRIPT_URL, {
+          method: "POST",
+          mode: "no-cors",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(payload)
+        });
+
+        return true;
+      } catch (error) {
+        console.error("Error al enviar a Google Sheets:", error);
+        return false;
+      }
+    }
+  </script>
+</body>
+</html>
