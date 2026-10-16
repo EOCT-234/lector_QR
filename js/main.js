@@ -1,10 +1,11 @@
 let isProcessing = false;
 
 document.addEventListener("DOMContentLoaded", () => {
-  // 1. Asegurar que la casilla de la URL inicie completamente vacía al recargar
+  // 1. Cargar URL previa guardada si existe
   const urlInput = document.getElementById("sheet-url-input");
-  if (urlInput) {
-    urlInput.value = "";
+  const savedUrl = localStorage.getItem("lastSheetUrl");
+  if (savedUrl && urlInput) {
+    urlInput.value = savedUrl;
   }
 
   // 2. Inicialización del Lector QR
@@ -21,13 +22,13 @@ document.addEventListener("DOMContentLoaded", () => {
     copyBtn.addEventListener("click", copyToClipboard);
   }
 
-  // 5. Evento para el botón CARGAR (Obtener lista de variables desde la hoja)
+  // 5. Evento para botón CARGAR (Obtener lista de variables)
   const btnCargar = document.getElementById("btn-cargar");
   if (btnCargar) {
     btnCargar.addEventListener("click", handleCargarVariables);
   }
 
-  // 6. Evento para el botón GUARDAR (Enviar registro a Google Sheets)
+  // 6. Evento para botón GUARDAR (Enviar registro a Google Sheets)
   const btnGuardar = document.getElementById("btn-guardar");
   if (btnGuardar) {
     btnGuardar.addEventListener("click", handleGuardarDatos);
@@ -75,6 +76,9 @@ async function handleCargarVariables() {
     if (statusCarga) statusCarga.textContent = "Ingresa enlace de Sheets";
     return;
   }
+
+  // Guardar la URL localmente
+  localStorage.setItem("lastSheetUrl", sheetUrl);
 
   if (statusCarga) statusCarga.textContent = "Cargando...";
 
@@ -190,7 +194,7 @@ async function handleGuardarDatos() {
 
     if (statusCarga) statusCarga.textContent = "¡Guardado exitoso!";
 
-    // Limpia únicamente Repetición y Medición para agilizar la entrada rápida
+    // Limpia únicamente Repetición y Medición para agilizar el ingreso continuo
     const repInput = document.getElementById("val-repeticion");
     const medInput = document.getElementById("val-medicion");
     if (repInput) repInput.value = "";
