@@ -1,15 +1,43 @@
 let isProcessing = false;
 
 document.addEventListener("DOMContentLoaded", () => {
-  // Inicializar lector QR
+  // Inicializar escáner
   initQrScanner(handleQrScanned);
 
-  // Evento para el botón de copiar
+  // Inicializar pestañas
+  initTabs();
+
+  // Asignar evento al botón de copiar
   const copyBtn = document.getElementById("copy-btn");
   if (copyBtn) {
     copyBtn.addEventListener("click", copyToClipboard);
   }
 });
+
+/**
+ * Lógica para cambiar entre las pestañas "Lector QR" y "Google Sheets"
+ */
+function initTabs() {
+  const tabButtons = document.querySelectorAll(".tab-btn");
+  const tabContents = document.querySelectorAll(".tab-content");
+
+  tabButtons.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      // Quitar clase activa de todas las pestañas
+      tabButtons.forEach((b) => b.classList.remove("active"));
+      tabContents.forEach((content) => content.classList.add("hidden"));
+
+      // Activar la pestaña seleccionada
+      btn.classList.add("active");
+      const targetId = btn.getAttribute("data-tab");
+      const targetContent = document.getElementById(targetId);
+      
+      if (targetContent) {
+        targetContent.classList.remove("hidden");
+      }
+    });
+  });
+}
 
 function handleQrScanned(qrText) {
   if (isProcessing) return;
@@ -19,7 +47,6 @@ function handleQrScanned(qrText) {
   const copyBtn = document.getElementById("copy-btn");
   const syncStatusEl = document.getElementById("sync-status");
 
-  // Asignar directamente el valor leído al campo de texto
   if (qrResultText) {
     qrResultText.value = qrText;
   }
@@ -28,7 +55,7 @@ function handleQrScanned(qrText) {
     copyBtn.textContent = "COPIAR TEXTO";
   }
 
-  // Integración con Google Sheets si está configurada
+  // Si existe función de sincronización con Sheets
   if (typeof isGoogleSheetsConfigured === "function" && isGoogleSheetsConfigured()) {
     if (syncStatusEl) {
       syncStatusEl.style.display = "block";
@@ -51,7 +78,6 @@ function handleQrScanned(qrText) {
     syncStatusEl.style.display = "none";
   }
 
-  // Pausa de 2.5 segundos para evitar lecturas duplicadas
   setTimeout(() => {
     isProcessing = false;
   }, 2500);

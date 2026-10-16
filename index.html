@@ -3,34 +3,62 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Lector QR</title>
+  <title>Lector QR & Google Sheets</title>
   
   <link rel="stylesheet" href="style.css">
   <script src="https://unpkg.com/html5-qrcode"></script>
 </head>
 <body>
 
-  <main class="app-container">
-    <!-- Columna Izquierda: Lector QR -->
-    <section class="scanner-section">
-      <div id="reader"></div>
-    </section>
+  <div class="main-wrapper">
+    <!-- Barra de Navegación por Pestañas -->
+    <nav class="tabs-nav">
+      <button class="tab-btn active" data-tab="tab-scanner">Lector QR</button>
+      <button class="tab-btn" data-tab="tab-sheets">Google Sheets</button>
+    </nav>
 
-    <!-- Columna Derecha: Resultado y Botón -->
-    <section class="result-section">
-      <div class="result-box">
-        <label for="qr-result-text">Texto del QR</label>
-        <textarea id="qr-result-text" readonly placeholder="El texto leído aparecerá aquí..."></textarea>
+    <!-- Pestaña 1: Lector QR (Vista Compacta de 2 Columnas) -->
+    <main id="tab-scanner" class="tab-content active">
+      <div class="app-container">
+        <!-- Columna Izquierda: Lector QR -->
+        <section class="scanner-section">
+          <div id="reader"></div>
+        </section>
+
+        <!-- Columna Derecha: Resultado y Botón -->
+        <section class="result-section">
+          <div class="result-box">
+            <label for="qr-result-text">Texto del QR</label>
+            <textarea id="qr-result-text" readonly placeholder="El texto leído aparecerá aquí..."></textarea>
+          </div>
+
+          <button id="copy-btn" class="btn-copy">COPIAR TEXTO</button>
+
+          <div id="sync-status" class="status-msg"></div>
+        </section>
       </div>
+    </main>
 
-      <button id="copy-btn" class="btn-copy">COPIAR TEXTO</button>
+    <!-- Pestaña 2: Configuración de Google Sheets -->
+    <section id="tab-sheets" class="tab-content hidden">
+      <div class="sheets-card">
+        <h2>Conexión con Google Sheets</h2>
+        <p class="sheets-description">Pega la URL de tu Web App de Google Apps Script para conectar tu hoja de cálculo.</p>
 
-      <!-- Mensaje de estado oculto si no hay enlace -->
-      <div id="sync-status" class="status-msg"></div>
+        <div class="input-group">
+          <label for="script-url-input">URL de Apps Script:</label>
+          <input type="url" id="script-url-input" placeholder="https://script.google.com/macros/s/.../exec">
+        </div>
+
+        <button id="save-url-btn" class="btn-copy">GUARDAR Y CONECTAR</button>
+
+        <!-- Estado de la conexión / Nombre del Libro -->
+        <div id="sheet-info" class="sheet-status-info"></div>
+      </div>
     </section>
-  </main>
+  </div>
 
-  <!-- Carga de scripts en orden -->
+  <!-- Carga de scripts -->
   <script src="js/sheets.js"></script>
   <script src="js/qrScanner.js"></script>
   <script src="js/main.js"></script>

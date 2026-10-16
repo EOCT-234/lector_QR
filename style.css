@@ -14,17 +14,60 @@ body {
   padding: 15px;
 }
 
-/* Contenedor principal en 2 columnas */
+/* Envoltorio Principal */
+.main-wrapper {
+  max-width: 800px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* --- BARRA DE PESTAÑAS --- */
+.tabs-nav {
+  display: flex;
+  gap: 8px;
+}
+
+.tab-btn {
+  background-color: #a4c2d1;
+  color: #0d3b52;
+  border: 2px solid #0d3b52;
+  border-bottom: none;
+  border-radius: 8px 8px 0 0;
+  padding: 10px 20px;
+  font-weight: bold;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.tab-btn.active {
+  background-color: #175d7e;
+  color: #ffffff;
+}
+
+.tab-btn:hover:not(.active) {
+  background-color: #cbdbe4;
+}
+
+/* Contenido de las pestañas */
+.tab-content {
+  width: 100%;
+}
+
+.tab-content.hidden {
+  display: none !important;
+}
+
+/* --- VISTA 1: LECTOR QR (2 COLUMNAS) --- */
 .app-container {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 15px;
-  max-width: 800px;
   width: 100%;
-  background: transparent;
 }
 
-/* --- COLUMNA IZQUIERDA: LECTOR QR --- */
 .scanner-section {
   background-color: #175d7e;
   border: 3px solid #0d3b52;
@@ -42,22 +85,11 @@ body {
   border: none !important;
 }
 
-/* Personalización del lector HTML5 QR */
 #reader video {
   border-radius: 6px;
   object-fit: cover;
 }
 
-#reader__scan_region {
-  background: transparent !important;
-}
-
-#reader__dashboard {
-  color: #ffffff;
-  font-size: 0.85rem;
-}
-
-/* --- COLUMNA DERECHA: RESULTADOS --- */
 .result-section {
   display: flex;
   flex-direction: column;
@@ -98,7 +130,6 @@ body {
   color: rgba(255, 255, 255, 0.6);
 }
 
-/* Botón Copiar Texto */
 .btn-copy {
   background-color: #175d7e;
   border: 3px solid #0d3b52;
@@ -121,7 +152,6 @@ body {
   transform: scale(0.98);
 }
 
-/* Mensaje de estado (Google Sheets) */
 .status-msg {
   font-size: 0.85rem;
   text-align: center;
@@ -133,7 +163,57 @@ body {
 .status-msg.success { color: #059669; }
 .status-msg.error { color: #dc2626; }
 
-/* Responsive: En pantallas de celular se colocan uno debajo del otro */
+/* --- VISTA 2: VENTANA GOOGLE SHEETS --- */
+.sheets-card {
+  background-color: #175d7e;
+  border: 3px solid #0d3b52;
+  border-radius: 0 8px 8px 8px;
+  padding: 20px;
+  color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.sheets-card h2 {
+  font-size: 1.3rem;
+}
+
+.sheets-description {
+  font-size: 0.9rem;
+  color: #e2e8f0;
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.input-group label {
+  font-weight: bold;
+  font-size: 0.95rem;
+}
+
+.input-group input {
+  padding: 10px;
+  border-radius: 6px;
+  border: 2px solid #0d3b52;
+  outline: none;
+  font-size: 0.95rem;
+}
+
+.sheet-status-info {
+  margin-top: 10px;
+  font-weight: bold;
+  font-size: 0.95rem;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 10px;
+  border-radius: 6px;
+  text-align: center;
+}
+
+/* Responsive para dispositivos móviles */
 @media (max-width: 600px) {
   .app-container {
     grid-template-columns: 1fr;
