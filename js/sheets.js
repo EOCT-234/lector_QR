@@ -82,11 +82,12 @@ async function saveRecordToSheets(data) {
     throw new Error("Falta configurar la URL de Apps Script en SAVE_WEB_APP_URL");
   }
 
-  const response = await fetch(SAVE_WEB_APP_URL, {
+  // Usamos text/plain para evitar que el navegador bloquee el contenido enviado
+  await fetch(SAVE_WEB_APP_URL, {
     method: "POST",
-    mode: "no-cors", // Permite enviar peticiones desde la app web sin bloqueos de origen
+    mode: "no-cors",
     headers: {
-      "Content-Type": "application/json"
+      "Content-Type": "text/plain;charset=utf-8"
     },
     body: JSON.stringify(data)
   });
