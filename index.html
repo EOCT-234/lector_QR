@@ -23,7 +23,14 @@
     <!-- Panel de estado y resultados -->
     <div id="status-card" class="card hidden">
       <h3>Último Código Leído</h3>
-      <p id="qr-result" class="qr-text"></p>
+      
+      <!-- Campo donde se muestra el texto del QR -->
+      <textarea id="qr-result-text" readonly class="qr-textarea"></textarea>
+      
+      <!-- Botón para copiar el texto -->
+      <button id="copy-btn" class="btn-copy">Copiar Texto</button>
+      
+      <!-- Estado del envío a Google Sheets -->
       <div id="sync-status" class="status-msg"></div>
     </div>
   </main>
@@ -47,8 +54,11 @@
       );
 
       html5QrcodeScanner.render(handleQrScanned, (error) => {
-        // Errores cuadro a cuadro (se pueden ignorar)
+        // Errores cuadro a cuadro de la cámara (se ignoran)
       });
+
+      // Evento para el botón de copiar
+      document.getElementById("copy-btn").addEventListener("click", copyToClipboard);
     });
 
     // Función que procesa el escaneo del QR
@@ -57,12 +67,14 @@
       isProcessing = true;
 
       const statusCard = document.getElementById("status-card");
-      const qrResultEl = document.getElementById("qr-result");
+      const qrResultText = document.getElementById("qr-result-text");
       const syncStatusEl = document.getElementById("sync-status");
+      const copyBtn = document.getElementById("copy-btn");
 
       // Mostrar contenedor
       statusCard.classList.remove("hidden");
-      qrResultEl.textContent = qrText;
+      qrResultText.value = qrText;
+      copyBtn.textContent = "Copiar Texto"; // Restablecer texto del botón
 
       // Estado visual: Enviando
       syncStatusEl.className = "status-msg sending";
@@ -83,6 +95,32 @@
       setTimeout(() => {
         isProcessing = false;
       }, 3000);
+    }
+
+    // Función para copiar el texto al portapapeles
+    function copyToClipboard() {
+      const qrResultText = document.getElementById("qr-result-text");
+      const copyBtn = document.getElementById("copy-btn");
+
+      if (!qrResultText.value) return;
+
+      // Usar la API de Portapapeles del navegador
+      navigator.clipboard.writeText(qrResultText.value)
+        .then(() => {
+          copyBtn.textContent = "¡Copiado!";
+          setTimeout(() => {
+            copyBtn.textContent = "Copiar Texto";
+          }, 2000);
+        })
+        .catch(err => {
+          // Si falla (browsers antiguos), intentar método alternativo
+          qrResultText.select();
+          document.execCommand('copy');
+          copyBtn.textContent = "¡Copiado!";
+          setTimeout(() => {
+            copyBtn.textContent = "Copiar Texto";
+          }, 2000);
+        });
     }
 
     // Función que se conecta con la API de Google Apps Script
