@@ -1,3 +1,6 @@
+// URL de la aplicación web desplegada en Google Apps Script
+const SAVE_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyeznto3bnd1lC8Dx4mdzalDQP6tnNDXMv-7Db1SasxYFE1eMFCRymDAr4-l4La3lhb8w/exec";
+
 /**
  * Obtiene la columna 'variable' de la hoja 'descriptores' directamente
  * mediante la API de exportación pública CSV de Google Sheets.
@@ -69,6 +72,26 @@ async function fetchDescriptorsVariables(sheetUrl) {
     console.error("Error al obtener variables desde Google Sheets:", error);
     throw error;
   }
+}
+
+/**
+ * Envía un nuevo registro a Google Sheets para guardarlo en la pestaña 'registros'
+ */
+async function saveRecordToSheets(data) {
+  if (!SAVE_WEB_APP_URL) {
+    throw new Error("Falta configurar la URL de Apps Script en SAVE_WEB_APP_URL");
+  }
+
+  const response = await fetch(SAVE_WEB_APP_URL, {
+    method: "POST",
+    mode: "no-cors", // Permite enviar peticiones desde la app web sin bloqueos de origen
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(data)
+  });
+
+  return { status: "success" };
 }
 
 /**
