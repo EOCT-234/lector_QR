@@ -1,11 +1,10 @@
 let isProcessing = false;
 
 document.addEventListener("DOMContentLoaded", () => {
-  // 1. Cargar URL previa guardada si existe
+  // 1. Limpiar el campo del enlace para que comience vacío al actualizar la página
   const urlInput = document.getElementById("sheet-url-input");
-  const savedUrl = localStorage.getItem("lastSheetUrl");
-  if (savedUrl && urlInput) {
-    urlInput.value = savedUrl;
+  if (urlInput) {
+    urlInput.value = "";
   }
 
   // 2. Inicialización del Lector QR
@@ -22,7 +21,7 @@ document.addEventListener("DOMContentLoaded", () => {
     copyBtn.addEventListener("click", copyToClipboard);
   }
 
-  // 5. Evento para botón CARGAR (Obtener lista de variables)
+  // 5. Evento para botón CARGAR (Obtener lista de variables desde Google Apps Script)
   const btnCargar = document.getElementById("btn-cargar");
   if (btnCargar) {
     btnCargar.addEventListener("click", handleCargarVariables);
@@ -76,9 +75,6 @@ async function handleCargarVariables() {
     if (statusCarga) statusCarga.textContent = "Ingresa enlace de Sheets";
     return;
   }
-
-  // Guardar la URL localmente
-  localStorage.setItem("lastSheetUrl", sheetUrl);
 
   if (statusCarga) statusCarga.textContent = "Cargando...";
 
