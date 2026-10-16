@@ -10,50 +10,48 @@ async function fetchDescriptorsVariables(sheetUrl) {
     throw new Error("Ingresa un enlace válido de Google Sheets");
   }
 
-  // 1. Limpiar espacios del enlace
-  const cleanUrl = sheetUrl.trim();
-
-  // 2. Extraer el ID del libro mediante Expresión Regular
-  const idMatch = cleanUrl.match(/\/d\/([a-zA-Z0-9-_]+)/);
+  // 1. Extraer el ID único de la hoja mediante Expresión Regular
+  const idMatch = sheetUrl.trim().match(/\/d\/([a-zA-Z0-9-_]+)/);
   if (!idMatch || !idMatch[1]) {
-    throw new Error("No se pudo extraer el ID del enlace de Google Sheets");
+    throw new Error("El enlace ingresado no es un enlace válido de Google Sheets.");
   }
 
   const spreadsheetId = idMatch[1];
   
-  // 3. Construir la URL directa de exportación CSV para la hoja 'descriptores'
+  // 2. Construir la URL limpia de exportación CSV para la pestaña 'descriptores'
   const csvUrl = `https://docs.google.com/spreadsheets/d/${spreadsheetId}/gviz/tq?tqx=out:csv&sheet=descriptores`;
 
   try {
     const response = await fetch(csvUrl);
 
     if (!response.ok) {
-      throw new Error("No se pudo acceder a la hoja. Verifica que el enlace esté compartido como público.");
+      throw new Error("No se pudo acceder a la hoja. Verifica la conexión.");
     }
 
     const csvText = await response.text();
 
-    if (!csvText || csvText.includes("<!DOCTYPE html>")) {
-      throw new Error("Verifica que la pestaña se llame 'descriptores' y la hoja sea pública.");
+    // Si la respuesta es una página HTML de inicio de sesión o error de permisos
+    if (!csvText || csvText.toLowerCase().includes("<!doctype html>")) {
+      throw new Error("No se pudo leer la pestaña 'descriptores'.");
     }
 
-    // 4. Procesar el contenido CSV por líneas
+    // 3. Procesar el contenido CSV por líneas
     const lines = csvText.split(/\r?\n/).map(line => line.trim()).filter(line => line.length > 0);
 
     if (lines.length < 2) {
-      throw new Error("La hoja 'descriptores' está vacía.");
+      throw new Error("La pestaña 'descriptores' no tiene suficientes datos.");
     }
 
     // Parsear la primera fila (encabezados)
     const headers = parseCsvLine(lines[0]).map(h => h.toLowerCase().trim());
 
-    // Buscar el índice de la columna 'variable'
+    // Buscar la columna 'variable' o usar la columna 0 (Columna A) por defecto
     let colIndex = headers.indexOf("variable");
     if (colIndex === -1) {
-      colIndex = 0; // Si no encuentra el encabezado 'variable', usa la Columna A
+      colIndex = 0;
     }
 
-    // Extraer las opciones de la columna
+    // Extraer cada elemento de la columna
     const variables = [];
     for (let i = 1; i < lines.length; i++) {
       const row = parseCsvLine(lines[i]);
@@ -63,7 +61,7 @@ async function fetchDescriptorsVariables(sheetUrl) {
     }
 
     if (variables.length === 0) {
-      throw new Error("No se encontraron datos en la columna 'variable'.");
+      throw new Error("No se encontraron elementos en la columna 'variable'.");
     }
 
     return variables;
@@ -82,7 +80,6 @@ async function saveRecordToSheets(data) {
     throw new Error("Falta configurar la URL de Apps Script en SAVE_WEB_APP_URL");
   }
 
-  // Usamos text/plain para garantizar que la solicitud no sufra bloqueos de preflight por CORS
   await fetch(SAVE_WEB_APP_URL, {
     method: "POST",
     mode: "no-cors",
