@@ -1,11 +1,17 @@
 let isProcessing = false;
 
 document.addEventListener("DOMContentLoaded", () => {
-  // Inicialización de Lector QR y Pestañas
-  initQrScanner(handleQrScanned);
+  // Inicialización segura del lector QR
+  if (typeof initQrScanner === "function") {
+    initQrScanner(handleQrScanned);
+  } else {
+    console.error("No se encontró la función initQrScanner en js/qrScanner.js");
+  }
+
+  // Inicialización de Pestañas
   initTabs();
 
-  // Evento Copiar Texto
+  // Evento Botón Copiar Texto
   const copyBtn = document.getElementById("copy-btn");
   if (copyBtn) {
     copyBtn.addEventListener("click", copyToClipboard);
@@ -18,6 +24,9 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 
+/**
+ * Procesa la carga de variables desde Apps Script
+ */
 async function handleCargarVariables() {
   const urlInput = document.getElementById("sheet-url-input");
   const statusCarga = document.getElementById("status-carga");
@@ -33,10 +42,8 @@ async function handleCargarVariables() {
   if (statusCarga) statusCarga.textContent = "Cargando...";
 
   try {
-    // Consultar el script centralizado
     const variables = await fetchDescriptorsVariables(sheetUrl);
 
-    // Llenar el menú desplegable <select>
     if (selectVariable) {
       selectVariable.innerHTML = '<option value="">---------</option>';
       variables.forEach((variable) => {
@@ -50,11 +57,14 @@ async function handleCargarVariables() {
     if (statusCarga) statusCarga.textContent = "Carga exitosa";
 
   } catch (error) {
-    console.error(error);
+    console.error("Error al cargar desde Sheets:", error);
     if (statusCarga) statusCarga.textContent = "Error al cargar";
   }
 }
 
+/**
+ * Control de navegación por Pestañas
+ */
 function initTabs() {
   const tabButtons = document.querySelectorAll(".tab-btn");
   const tabContents = document.querySelectorAll(".tab-content");
@@ -75,6 +85,9 @@ function initTabs() {
   });
 }
 
+/**
+ * Captura el texto del QR escaneado
+ */
 function handleQrScanned(qrText) {
   if (isProcessing) return;
   isProcessing = true;
@@ -92,6 +105,9 @@ function handleQrScanned(qrText) {
   }, 2500);
 }
 
+/**
+ * Copiar texto al portapapeles
+ */
 function copyToClipboard() {
   const qrResultText = document.getElementById("qr-result-text");
   const copyBtn = document.getElementById("copy-btn");
