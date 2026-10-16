@@ -1,31 +1,51 @@
-const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwa3I_03AedoserCc65NsMMSzHlZthCTMrk-35h6ey6L9W48kgfACRN8HcrWzXxd32P0g/exec";
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwWNcyzhdRExyCVKTX0YdIQGRLPZmAbRzAX_AZSypnWMaWdG9X9-GlNX3dSUgd23JPqKQ/exec";
 
-async function fetchDescriptorsVariables(sheetUrl) {
-  if (!sheetUrl || !sheetUrl.includes("docs.google.com/spreadsheets")) {
-    throw new Error("Por favor ingresa un enlace válido de Google Sheets.");
-  }
-
-  const requestUrl = `${WEB_APP_URL}?sheetUrl=${encodeURIComponent(sheetUrl)}`;
-
-  try {
-    const response = await fetch(requestUrl, {
-      method: "GET",
-      redirect: "follow"
-    });
-
-    if (!response.ok) {
-      throw new Error(`Error HTTP: ${response.status}`);
+/**
+ * Petición mediante JSONP para evitar bloqueos de CORS de Google Apps Script
+ */
+function fetchDescriptorsVariables(sheetUrl) {
+  return new Promise((resolve, reject) => {
+    if (!sheetUrl || !sheetUrl.includes("docs.google.com/spreadsheets")) {
+      return reject("Por favor ingresa un enlace válido de Google Sheets.");
     }
 
-    const data = await response.json();
+    // Nombre único para la función callback global
+    const callbackName = "jsonp_callback_" + Math.round(100000 * Math.random());
 
-    if (data.status === "success" && Array.isArray(data.variables)) {
-      return data.variables;
-    } else {
-      throw new Error(data.message || "Error devuelto por Apps Script.");
+    // Crear elemento script dinámico
+    const script = document.createElement("script");
+    const encodedUrl = encodeURIComponent(sheetUrl);
+    script.src = `${WEB_APP_URL}?sheetUrl=${encodedUrl}&callback=${callbackName}`;
+
+    // Configurar tiempo de espera (Timeout de 10 segundos)
+    const timeout = setTimeout(() => {
+      cleanup();
+      reject("Tiempo de espera agotado. Verifica el enlace y el despliegue del script.");
+    }, 10000);
+
+    // Definir la función global temporal
+    window[callbackName] = function(data) {
+      cleanup();
+      if (data && data.status === "success" && Array.isArray(data.variables)) {
+        resolve(data.variables);
+      } else {
+        reject(data ? data.message : "Error al obtener las variables.");
+      }
+    };
+
+    // Manejo de errores de red
+    script.onerror = function() {
+      cleanup();
+      reject("Error de conexión al intentar comunicarse con Apps Script.");
+    };
+
+    function cleanup() {
+      clearTimeout(timeout);
+      if (script.parentNode) script.parentNode.removeChild(script);
+      delete window[callbackName];
     }
-  } catch (error) {
-    console.error("Detalle del error en fetch:", error);
-    throw error;
-  }
+
+    // Insertar el script en el documento para iniciar la petición
+    document.body.appendChild(script);
+  });
 }
