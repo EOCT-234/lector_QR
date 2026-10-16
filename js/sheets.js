@@ -1,4 +1,4 @@
-const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzQv94yEEN6HMHS58VGdvMNBtq8au6UptL-Zu3ujqEeRpoWuwQXImuv_2zhCs9IMwC92A/exec";
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzml6OaBd9Vc5Bl-ljmPv4VqwQoRJ9G5ETDFWFQUnaUbDq9nrtQRuzyKLvf_4CYXdv4KA/exec";
 
 function fetchDescriptorsVariables(sheetUrl) {
   return new Promise((resolve, reject) => {
