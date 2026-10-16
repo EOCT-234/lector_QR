@@ -1,21 +1,16 @@
-// Variable para evitar lecturas duplicadas seguidas
 let isProcessing = false;
 
 document.addEventListener("DOMContentLoaded", () => {
-  // 1. Inicializar el lector QR usando la función de qrScanner.js
+  // Inicializar lector QR
   initQrScanner(handleQrScanned);
 
-  // 2. Asignar evento al botón de copiar
+  // Asignar evento al botón de copiar
   const copyBtn = document.getElementById("copy-btn");
   if (copyBtn) {
     copyBtn.addEventListener("click", copyToClipboard);
   }
 });
 
-/**
- * Callback que se ejecuta cuando qrScanner.js detecta un código QR
- * @param {string} qrText - El texto extraído del QR
- */
 async function handleQrScanned(qrText) {
   if (isProcessing) return;
   isProcessing = true;
@@ -25,35 +20,38 @@ async function handleQrScanned(qrText) {
   const syncStatusEl = document.getElementById("sync-status");
   const copyBtn = document.getElementById("copy-btn");
 
-  // Mostrar el panel de resultados y el texto del QR
+  // Mostrar el panel y el texto leído
   statusCard.classList.remove("hidden");
   qrResultText.value = qrText;
   copyBtn.textContent = "Copiar Texto";
 
-  // Actualizar estado en pantalla
-  syncStatusEl.className = "status-msg sending";
-  syncStatusEl.textContent = "Guardando en Google Sheets...";
+  // Evaluar si Google Sheets está configurado
+  if (typeof isGoogleSheetsConfigured === "function" && isGoogleSheetsConfigured()) {
+    syncStatusEl.style.display = "block";
+    syncStatusEl.className = "status-msg sending";
+    syncStatusEl.textContent = "Guardando en Google Sheets...";
 
-  // Enviar los datos usando la función definida en sheets.js
-  const success = await sendToGoogleSheets(qrText);
+    const success = await sendToGoogleSheets(qrText);
 
-  if (success) {
-    syncStatusEl.className = "status-msg success";
-    syncStatusEl.textContent = "¡Registrado con éxito en Google Sheets!";
+    if (success) {
+      syncStatusEl.className = "status-msg success";
+      syncStatusEl.textContent = "¡Registrado con éxito en Google Sheets!";
+    } else {
+      syncStatusEl.className = "status-msg error";
+      syncStatusEl.textContent = "Error al guardar los datos en Sheets.";
+    }
   } else {
-    syncStatusEl.className = "status-msg error";
-    syncStatusEl.textContent = "Error al guardar los datos.";
+    // Si no hay enlace configurado, se oculta completamente ese mensaje
+    syncStatusEl.style.display = "none";
+    syncStatusEl.textContent = "";
   }
 
-  // Esperar 3 segundos antes de permitir escanear otro código
+  // Pausa de 3 segundos para evitar múltiples lecturas continuas
   setTimeout(() => {
     isProcessing = false;
   }, 3000);
 }
 
-/**
- * Función para copiar el contenido del cuadro de texto al portapapeles
- */
 function copyToClipboard() {
   const qrResultText = document.getElementById("qr-result-text");
   const copyBtn = document.getElementById("copy-btn");
@@ -68,7 +66,6 @@ function copyToClipboard() {
       }, 2000);
     })
     .catch(() => {
-      // Método de respaldo para navegadores antiguos
       qrResultText.select();
       document.execCommand('copy');
       copyBtn.textContent = "¡Copiado!";
