@@ -65,3 +65,55 @@ async function fetchDescriptorsVariables(sheetUrl) {
     if (variables.length === 0) {
       throw new Error("No se encontraron datos en la columna 'variable'.");
     }
+
+    return variables;
+
+  } catch (error) {
+    console.error("Error al obtener variables desde Google Sheets:", error);
+    throw error;
+  }
+}
+
+/**
+ * Envía un nuevo registro a Google Sheets para guardarlo en la pestaña 'evaluacion'
+ */
+async function saveRecordToSheets(data) {
+  if (!SAVE_WEB_APP_URL) {
+    throw new Error("Falta configurar la URL de Apps Script en SAVE_WEB_APP_URL");
+  }
+
+  // Usamos text/plain para garantizar que la solicitud no sufra bloqueos de preflight por CORS
+  await fetch(SAVE_WEB_APP_URL, {
+    method: "POST",
+    mode: "no-cors",
+    headers: {
+      "Content-Type": "text/plain;charset=utf-8"
+    },
+    body: JSON.stringify(data)
+  });
+
+  return { status: "success" };
+}
+
+/**
+ * Función auxiliar para parsear líneas formateadas en CSV
+ */
+function parseCsvLine(line) {
+  const result = [];
+  let current = '';
+  let inQuotes = false;
+
+  for (let i = 0; i < line.length; i++) {
+    const char = line[i];
+    if (char === '"') {
+      inQuotes = !inQuotes;
+    } else if (char === ',' && !inQuotes) {
+      result.push(current.replace(/^"|"$/g, '').trim());
+      current = '';
+    } else {
+      current += char;
+    }
+  }
+  result.push(current.replace(/^"|"$/g, '').trim());
+  return result;
+}
