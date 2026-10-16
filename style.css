@@ -6,154 +6,270 @@
 }
 
 body {
-  background-color: #f4f7f6;
-  color: #333;
+  background-color: #f0f4f8;
   display: flex;
   justify-content: center;
-  align-items: flex-start;
-  min-height: 100vh;
-  padding: 20px;
-}
-
-.container {
-  background: #ffffff;
-  width: 100%;
-  max-width: 480px;
-  border-radius: 12px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
-  padding: 20px;
-}
-
-/* Pestañas de navegación */
-.tabs-header {
-  display: flex;
-  border-bottom: 2px solid #e0e0e0;
-  margin-bottom: 20px;
-}
-
-.tab-btn {
-  flex: 1;
-  padding: 12px;
-  background: none;
-  border: none;
-  font-weight: bold;
-  color: #777;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  font-size: 1rem;
-}
-
-.tab-btn.active {
-  color: #2e7d32;
-  border-bottom: 3px solid #2e7d32;
-}
-
-.tab-content {
-  display: block;
-}
-
-.tab-content.hidden {
-  display: none;
-}
-
-/* Lector QR */
-.qr-container {
-  display: flex;
-  flex-direction: column;
   align-items: center;
+  min-height: 100vh;
+  padding: 15px;
 }
 
-#reader {
+/* Envoltorio Principal */
+.main-wrapper {
+  max-width: 800px;
   width: 100%;
-  max-width: 350px;
-  margin-bottom: 15px;
-  border-radius: 8px;
-  overflow: hidden;
-}
-
-/* Formularios e Inputs */
-.form-group {
-  margin-bottom: 15px;
   display: flex;
   flex-direction: column;
+  gap: 10px;
 }
 
-.form-group label {
-  font-size: 0.85rem;
-  font-weight: bold;
-  color: #555;
-  margin-bottom: 5px;
-  text-transform: uppercase;
-}
-
-.input-with-button {
+/* --- BARRA DE PESTAÑAS --- */
+.tabs-nav {
   display: flex;
   gap: 8px;
 }
 
-.input-with-button input {
-  flex: 1;
+.tab-btn {
+  background-color: #a4c2d1;
+  color: #0d3b52;
+  border: 2px solid #0d3b52;
+  border-bottom: none;
+  border-radius: 8px 8px 0 0;
+  padding: 10px 20px;
+  font-weight: bold;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 
-input[type="text"],
-input[type="number"],
-select,
-textarea {
+.tab-btn.active {
+  background-color: #175d7e;
+  color: #ffffff;
+}
+
+.tab-btn:hover:not(.active) {
+  background-color: #cbdbe4;
+}
+
+.tab-content {
   width: 100%;
+}
+
+.tab-content.hidden {
+  display: none !important;
+}
+
+/* --- VISTA 1: LECTOR QR (2 COLUMNAS) --- */
+.app-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+  width: 100%;
+}
+
+.scanner-section {
+  background-color: #175d7e;
+  border: 3px solid #0d3b52;
+  border-radius: 8px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 260px;
   padding: 10px;
-  border: 1px solid #ccc;
+}
+
+#reader {
+  width: 100%;
+  border: none !important;
+}
+
+#reader video {
   border-radius: 6px;
+  object-fit: cover;
+}
+
+.result-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.result-box {
+  background-color: #175d7e;
+  border: 3px solid #0d3b52;
+  border-radius: 8px;
+  padding: 12px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.result-box label {
+  color: #ffffff;
+  font-weight: bold;
+  font-size: 1.1rem;
+  margin-bottom: 8px;
+  display: block;
+}
+
+.result-box textarea {
+  width: 100%;
+  flex: 1;
+  min-height: 120px;
+  background: transparent;
+  border: none;
+  color: #ffffff;
+  font-size: 0.95rem;
+  resize: none;
+  outline: none;
+}
+
+.result-box textarea::placeholder {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.btn-copy {
+  background-color: #175d7e;
+  border: 3px solid #0d3b52;
+  border-radius: 8px;
+  color: #ffffff;
+  font-weight: bold;
+  font-size: 1rem;
+  padding: 14px;
+  cursor: pointer;
+  text-align: center;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+  width: 100%;
+}
+
+.btn-copy:hover {
+  background-color: #134c67;
+}
+
+.btn-copy:active {
+  transform: scale(0.98);
+}
+
+.status-msg {
+  font-size: 0.85rem;
+  text-align: center;
+  padding: 6px;
+  border-radius: 4px;
+}
+
+/* --- VISTA 2: BOCETO GOOGLE SHEETS --- */
+.sheets-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+}
+
+.sheets-row {
+  display: grid;
+  grid-template-columns: 180px 1fr;
+  gap: 12px;
+}
+
+.sheets-row.full-width {
+  grid-template-columns: 1fr;
+}
+
+.label-fixed, .btn-fixed {
+  background-color: #175d7e;
+  border: 3px solid #0d3b52;
+  border-radius: 4px;
+  color: #ffffff;
+  font-weight: bold;
+  font-size: 1rem;
+  padding: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.btn-fixed {
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.btn-fixed:hover {
+  background-color: #134c67;
+}
+
+.btn-fixed:active {
+  transform: scale(0.98);
+}
+
+.field-dynamic {
+  background-color: #175d7e;
+  border: 3px solid #0d3b52;
+  border-radius: 4px;
+  color: #ffffff;
+  padding: 12px 16px;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  min-height: 50px;
+}
+
+/* Inputs para accesión y enlace */
+#accesion-input,
+#sheet-url-input {
+  width: 100%;
+  background-color: #175d7e;
+  border: 3px solid #0d3b52;
+  border-radius: 4px;
+  color: #ffffff;
+  padding: 14px 16px;
   font-size: 1rem;
   outline: none;
-  transition: border-color 0.2s;
+  text-align: center;
 }
 
-input:focus, select:focus, textarea:focus {
-  border-color: #2e7d32;
+#accesion-input::placeholder,
+#sheet-url-input::placeholder {
+  color: rgba(255, 255, 255, 0.7);
+  font-style: italic;
 }
 
-/* Botones */
-.btn {
-  padding: 10px 16px;
-  background-color: #2e7d32;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  font-weight: bold;
+/* Select con la flecha */
+.select-field {
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 24px;
   cursor: pointer;
-  transition: background-color 0.2s;
-  font-size: 0.95rem;
-}
-
-.btn:hover {
-  background-color: #1b5e20;
-}
-
-.btn:disabled {
-  background-color: #a5d6a7;
-  cursor: not-allowed;
-}
-
-.btn-secondary {
-  background-color: #555;
-}
-
-.btn-secondary:hover {
-  background-color: #333;
-}
-
-.btn-full {
   width: 100%;
-  padding: 12px;
-  margin-top: 10px;
+  outline: none;
 }
 
-/* Indicador de Estado */
-.status-text {
-  font-size: 0.85rem;
-  font-weight: bold;
-  color: #2e7d32;
-  margin-top: 5px;
-  min-height: 18px;
-}/*  */
+.select-field option {
+  background-color: #175d7e;
+  color: #ffffff;
+}
+
+.sheets-footer {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 8px;
+}
+
+.sheets-footer .btn-fixed {
+  width: 200px;
+}
+
+@media (max-width: 600px) {
+  .app-container, .sheets-row {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .sheets-footer .btn-fixed {
+    width: 100%;
+  }
+}

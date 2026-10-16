@@ -1,17 +1,19 @@
-// URL de la aplicación web desplegada en Google Apps Script (Versión 14)
-const SAVE_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzQKe-J8eaRmxhpkIy_wO8HKsJmtpeHamXlOMv3Gh_b10K2VxVMqYh8DgbfmBYFZdx_/exec";
+// URL de la aplicación web actualizada desplegada en Google Apps Script
+const SAVE_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwvA-_zRgY2Hta12l4pOIYgeSFSBBP4cH742qVTkq7DbBkARcmXS_J8FCKnQFAlbvHAbA/exec";
 
 /**
- * Obtiene la columna 'variable' de la hoja 'descriptores' mediante exportación pública CSV.
- * Detecta delimitadores dinámicos (comas o tabulaciones) para funcionar en cualquier dispositivo o región.
+ * Obtiene la columna 'variable' de la hoja 'descriptores' directamente
+ * mediante la API de exportación pública CSV de Google Sheets.
  */
 async function fetchDescriptorsVariables(sheetUrl) {
   if (!sheetUrl) {
     throw new Error("Ingresa un enlace válido de Google Sheets");
   }
 
-  // 1. Extraer exclusivamente el ID del libro limpiando cualquier parámetro adicional
+  // 1. Limpiar espacios del enlace
   const cleanUrl = sheetUrl.trim();
+
+  // 2. Extraer el ID del libro mediante Expresión Regular
   const idMatch = cleanUrl.match(/\/d\/([a-zA-Z0-9-_]+)/);
   if (!idMatch || !idMatch[1]) {
     throw new Error("No se pudo extraer el ID del enlace de Google Sheets");
@@ -19,7 +21,7 @@ async function fetchDescriptorsVariables(sheetUrl) {
 
   const spreadsheetId = idMatch[1];
   
-  // 2. Construir la URL de exportación CSV para la hoja 'descriptores'
+  // 3. Construir la URL directa de exportación CSV para la hoja 'descriptores'
   const csvUrl = `https://docs.google.com/spreadsheets/d/${spreadsheetId}/gviz/tq?tqx=out:csv&sheet=descriptores`;
 
   try {
@@ -31,34 +33,30 @@ async function fetchDescriptorsVariables(sheetUrl) {
 
     const csvText = await response.text();
 
-    if (!csvText || csvText.toLowerCase().includes("<!doctype html>")) {
-      throw new Error("Verifica que la pestaña se llame 'descriptores' y la hoja esté compartida como pública.");
+    if (!csvText || csvText.includes("<!DOCTYPE html>")) {
+      throw new Error("Verifica que la pestaña se llame 'descriptores' y la hoja sea pública.");
     }
 
-    // 3. Dividir por filas
+    // 4. Procesar el contenido CSV por líneas
     const lines = csvText.split(/\r?\n/).map(line => line.trim()).filter(line => line.length > 0);
 
     if (lines.length < 2) {
-      throw new Error("La hoja 'descriptores' está vacía o no tiene datos suficientes.");
+      throw new Error("La hoja 'descriptores' está vacía.");
     }
 
-    // 4. Detectar el delimitador (coma o tabulación) analizando la primera línea
-    const firstLine = lines[0];
-    const delimiter = firstLine.includes("\t") ? "\t" : ",";
-
     // Parsear la primera fila (encabezados)
-    const headers = parseCsvLine(firstLine, delimiter).map(h => h.toLowerCase().trim());
+    const headers = parseCsvLine(lines[0]).map(h => h.toLowerCase().trim());
 
     // Buscar el índice de la columna 'variable'
     let colIndex = headers.indexOf("variable");
     if (colIndex === -1) {
-      colIndex = 0; // Si no encuentra el texto exacto 'variable', usa la Columna A
+      colIndex = 0; // Si no encuentra el encabezado 'variable', usa la Columna A
     }
 
-    // Extraer las opciones de la columna correspondiente
+    // Extraer las opciones de la columna
     const variables = [];
     for (let i = 1; i < lines.length; i++) {
-      const row = parseCsvLine(lines[i], delimiter);
+      const row = parseCsvLine(lines[i]);
       if (row[colIndex] && row[colIndex].trim() !== "") {
         variables.push(row[colIndex].trim());
       }
@@ -77,13 +75,14 @@ async function fetchDescriptorsVariables(sheetUrl) {
 }
 
 /**
- * Envía un nuevo registro a Google Sheets para guardarlo en la pestaña 'evaluacion'
+ * Envía un nuevo registro a Google Sheets para guardarlo en la pestaña 'registros'
  */
 async function saveRecordToSheets(data) {
   if (!SAVE_WEB_APP_URL) {
     throw new Error("Falta configurar la URL de Apps Script en SAVE_WEB_APP_URL");
   }
 
+  // Usamos text/plain para garantizar que la solicitud no sufra bloqueos de preflight por CORS
   await fetch(SAVE_WEB_APP_URL, {
     method: "POST",
     mode: "no-cors",
@@ -97,9 +96,9 @@ async function saveRecordToSheets(data) {
 }
 
 /**
- * Función auxiliar para parsear líneas CSV respetando comillas y delimitadores dinámicos
+ * Función auxiliar para parsear líneas formateadas en CSV
  */
-function parseCsvLine(line, delimiter = ",") {
+function parseCsvLine(line) {
   const result = [];
   let current = '';
   let inQuotes = false;
@@ -108,7 +107,7 @@ function parseCsvLine(line, delimiter = ",") {
     const char = line[i];
     if (char === '"') {
       inQuotes = !inQuotes;
-    } else if (char === delimiter && !inQuotes) {
+    } else if (char === ',' && !inQuotes) {
       result.push(current.replace(/^"|"$/g, '').trim());
       current = '';
     } else {
