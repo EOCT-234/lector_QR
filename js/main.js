@@ -1,33 +1,69 @@
 let isProcessing = false;
 
 document.addEventListener("DOMContentLoaded", () => {
-  // Inicializar escáner
+  // Inicialización de Lector QR y Pestañas
   initQrScanner(handleQrScanned);
-
-  // Inicializar pestañas
   initTabs();
 
-  // Asignar evento al botón de copiar
+  // Evento Copiar Texto
   const copyBtn = document.getElementById("copy-btn");
   if (copyBtn) {
     copyBtn.addEventListener("click", copyToClipboard);
   }
+
+  // Evento Botón CARGAR en la pestaña Google Sheets
+  const btnCargar = document.getElementById("btn-cargar");
+  if (btnCargar) {
+    btnCargar.addEventListener("click", handleCargarVariables);
+  }
 });
 
-/**
- * Lógica para cambiar entre las pestañas "Lector QR" y "Google Sheets"
- */
+async function handleCargarVariables() {
+  const urlInput = document.getElementById("sheet-url-input");
+  const statusCarga = document.getElementById("status-carga");
+  const selectVariable = document.getElementById("select-variable");
+
+  const sheetUrl = urlInput ? urlInput.value.trim() : "";
+
+  if (!sheetUrl) {
+    if (statusCarga) statusCarga.textContent = "Ingresa un enlace válido";
+    return;
+  }
+
+  if (statusCarga) statusCarga.textContent = "Cargando...";
+
+  try {
+    // Consultar el script centralizado
+    const variables = await fetchDescriptorsVariables(sheetUrl);
+
+    // Llenar el menú desplegable <select>
+    if (selectVariable) {
+      selectVariable.innerHTML = '<option value="">---------</option>';
+      variables.forEach((variable) => {
+        const option = document.createElement("option");
+        option.value = variable;
+        option.textContent = variable;
+        selectVariable.appendChild(option);
+      });
+    }
+
+    if (statusCarga) statusCarga.textContent = "Carga exitosa";
+
+  } catch (error) {
+    console.error(error);
+    if (statusCarga) statusCarga.textContent = "Error al cargar";
+  }
+}
+
 function initTabs() {
   const tabButtons = document.querySelectorAll(".tab-btn");
   const tabContents = document.querySelectorAll(".tab-content");
 
   tabButtons.forEach((btn) => {
     btn.addEventListener("click", () => {
-      // Quitar clase activa de todas las pestañas
       tabButtons.forEach((b) => b.classList.remove("active"));
       tabContents.forEach((content) => content.classList.add("hidden"));
 
-      // Activar la pestaña seleccionada
       btn.classList.add("active");
       const targetId = btn.getAttribute("data-tab");
       const targetContent = document.getElementById(targetId);
@@ -44,39 +80,12 @@ function handleQrScanned(qrText) {
   isProcessing = true;
 
   const qrResultText = document.getElementById("qr-result-text");
+  const accesionInput = document.getElementById("accesion-input");
   const copyBtn = document.getElementById("copy-btn");
-  const syncStatusEl = document.getElementById("sync-status");
 
-  if (qrResultText) {
-    qrResultText.value = qrText;
-  }
-
-  if (copyBtn) {
-    copyBtn.textContent = "COPIAR TEXTO";
-  }
-
-  // Si existe función de sincronización con Sheets
-  if (typeof isGoogleSheetsConfigured === "function" && isGoogleSheetsConfigured()) {
-    if (syncStatusEl) {
-      syncStatusEl.style.display = "block";
-      syncStatusEl.className = "status-msg sending";
-      syncStatusEl.textContent = "Guardando en Google Sheets...";
-    }
-
-    sendToGoogleSheets(qrText).then((success) => {
-      if (syncStatusEl) {
-        if (success) {
-          syncStatusEl.className = "status-msg success";
-          syncStatusEl.textContent = "¡Registrado con éxito!";
-        } else {
-          syncStatusEl.className = "status-msg error";
-          syncStatusEl.textContent = "Error al guardar en Sheets.";
-        }
-      }
-    });
-  } else if (syncStatusEl) {
-    syncStatusEl.style.display = "none";
-  }
+  if (qrResultText) qrResultText.value = qrText;
+  if (accesionInput) accesionInput.value = qrText;
+  if (copyBtn) copyBtn.textContent = "COPIAR TEXTO";
 
   setTimeout(() => {
     isProcessing = false;

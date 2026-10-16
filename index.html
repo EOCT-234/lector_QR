@@ -11,21 +11,19 @@
 <body>
 
   <div class="main-wrapper">
-    <!-- Barra de Navegación por Pestañas -->
+    <!-- Navegación por Pestañas -->
     <nav class="tabs-nav">
       <button class="tab-btn active" data-tab="tab-scanner">Lector QR</button>
       <button class="tab-btn" data-tab="tab-sheets">Google Sheets</button>
     </nav>
 
-    <!-- Pestaña 1: Lector QR (Vista Compacta de 2 Columnas) -->
+    <!-- Pestaña 1: Lector QR -->
     <main id="tab-scanner" class="tab-content active">
       <div class="app-container">
-        <!-- Columna Izquierda: Lector QR -->
         <section class="scanner-section">
           <div id="reader"></div>
         </section>
 
-        <!-- Columna Derecha: Resultado y Botón -->
         <section class="result-section">
           <div class="result-box">
             <label for="qr-result-text">Texto del QR</label>
@@ -33,33 +31,32 @@
           </div>
 
           <button id="copy-btn" class="btn-copy">COPIAR TEXTO</button>
-
           <div id="sync-status" class="status-msg"></div>
         </section>
       </div>
     </main>
 
-    <!-- Pestaña 2: Configuración de Google Sheets (Según Boceto) -->
+    <!-- Pestaña 2: Configuración de Google Sheets -->
     <section id="tab-sheets" class="tab-content hidden">
       <div class="sheets-container">
         
-        <!-- Campo superior 1: Accesión (donde pegas el texto del QR) -->
+        <!-- Campo accesión -->
         <div class="sheets-row full-width">
           <input type="text" id="accesion-input" placeholder="accesión">
         </div>
-        
-        <!-- Campo superior 2: Enlace de Google Sheets -->
+
+        <!-- Campo enlace de Google Sheets -->
         <div class="sheets-row full-width">
           <input type="url" id="sheet-url-input" placeholder="enlace de Google sheets">
         </div>
 
-        <!-- Fila 1: Botón CARGAR + Mensaje de Estado -->
+        <!-- Fila 1: CARGAR y Mensaje -->
         <div class="sheets-row">
           <button id="btn-cargar" class="btn-fixed">CARGAR</button>
-          <div id="status-carga" class="field-dynamic">Carga exitosa</div>
+          <div id="status-carga" class="field-dynamic">----------</div>
         </div>
 
-        <!-- Fila 2: Etiquetas de VARIABLE + Desplegable -->
+        <!-- Fila 2: VARIABLE y Desplegable -->
         <div class="sheets-row">
           <div class="label-fixed">VARIABLE</div>
           <select id="select-variable" class="field-dynamic select-field">
@@ -67,19 +64,19 @@
           </select>
         </div>
 
-        <!-- Fila 3: REPETICIÓN + Campo Dinámico -->
+        <!-- Fila 3: REPETICIÓN -->
         <div class="sheets-row">
           <div class="label-fixed">REPETICIÓN</div>
           <div id="val-repeticion" class="field-dynamic"></div>
         </div>
 
-        <!-- Fila 4: MEDICIÓN + Campo Dinámico -->
+        <!-- Fila 4: MEDICIÓN -->
         <div class="sheets-row">
           <div class="label-fixed">MEDICIÓN</div>
           <div id="val-medicion" class="field-dynamic"></div>
         </div>
 
-        <!-- Fila Inferior: Botón GUARDAR -->
+        <!-- Fila Inferior: GUARDAR -->
         <div class="sheets-footer">
           <button id="btn-guardar" class="btn-fixed">GUARDAR</button>
         </div>

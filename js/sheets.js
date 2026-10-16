@@ -1,41 +1,24 @@
-// Déjala así por el momento si no usas Google Sheets.
-// Si en el futuro quieres conectarlo, aquí pegas la URL de Apps Script.
-const GOOGLE_SHEETS_SCRIPT_URL = "AQUI_VA_TU_URL_DE_APPS_SCRIPT";
+// URL de tu Web App de Google Apps Script centralizada
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwWNcyzhdRExyCVKTX0YdIQGRLPZmAbRzAX_AZSypnWMaWdG9X9-GlNX3dSUgd23JPqKQ/exec";
 
 /**
- * Función que verifica si la URL de Google Sheets ha sido configurada
+ * Solicita a Apps Script central las variables de la hoja 'descriptores' del libro indicado.
+ * @param {string} sheetUrl - El enlace completo del libro de Google Sheets.
  */
-function isGoogleSheetsConfigured() {
-  return GOOGLE_SHEETS_SCRIPT_URL !== "" && 
-         GOOGLE_SHEETS_SCRIPT_URL !== "AQUI_VA_TU_URL_DE_APPS_SCRIPT";
-}
-
-/**
- * Envía la información a Google Sheets únicamente si la URL es válida
- */
-async function sendToGoogleSheets(qrData) {
-  if (!isGoogleSheetsConfigured()) {
-    return false;
+async function fetchDescriptorsVariables(sheetUrl) {
+  if (!sheetUrl || !sheetUrl.includes("docs.google.com/spreadsheets")) {
+    throw new Error("Por favor ingresa un enlace válido de Google Sheets.");
   }
 
-  try {
-    const payload = {
-      qrData: qrData,
-      timestamp: new Date().toISOString()
-    };
+  // Construir la URL agregando el parámetro sheetUrl
+  const requestUrl = `${WEB_APP_URL}?sheetUrl=${encodeURIComponent(sheetUrl)}`;
 
-    await fetch(GOOGLE_SHEETS_SCRIPT_URL, {
-      method: "POST",
-      mode: "no-cors",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(payload)
-    });
+  const response = await fetch(requestUrl);
+  const data = await response.json();
 
-    return true;
-  } catch (error) {
-    console.error("Error al enviar a Google Sheets:", error);
-    return false;
+  if (data.status === "success" && Array.isArray(data.variables)) {
+    return data.variables;
+  } else {
+    throw new Error(data.message || "Error al leer la hoja 'descriptores'");
   }
 }

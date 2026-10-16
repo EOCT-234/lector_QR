@@ -51,7 +51,6 @@ body {
   background-color: #cbdbe4;
 }
 
-/* Contenido de las pestañas */
 .tab-content {
   width: 100%;
 }
@@ -159,11 +158,7 @@ body {
   border-radius: 4px;
 }
 
-.status-msg.sending { color: #d97706; }
-.status-msg.success { color: #059669; }
-.status-msg.error { color: #dc2626; }
-
-/* --- VISTA 2: PEAQUEÑA Y BOCETO GOOGLE SHEETS --- */
+/* --- VISTA 2: BOCETO GOOGLE SHEETS --- */
 .sheets-container {
   display: flex;
   flex-direction: column;
@@ -171,7 +166,6 @@ body {
   width: 100%;
 }
 
-/* Filas con estructura de 2 columnas (Etiqueta fija a la izq / Campo a la der) */
 .sheets-row {
   display: grid;
   grid-template-columns: 180px 1fr;
@@ -182,7 +176,6 @@ body {
   grid-template-columns: 1fr;
 }
 
-/* Cajas / Etiquetas fijas (MAYÚSCULAS) */
 .label-fixed, .btn-fixed {
   background-color: #175d7e;
   border: 3px solid #0d3b52;
@@ -210,7 +203,6 @@ body {
   transform: scale(0.98);
 }
 
-/* Campos dinámicos de la derecha */
 .field-dynamic {
   background-color: #175d7e;
   border: 3px solid #0d3b52;
@@ -223,7 +215,8 @@ body {
   min-height: 50px;
 }
 
-/* Input para el enlace de Google Sheets */
+/* Inputs para accesión y enlace */
+#accesion-input,
 #sheet-url-input {
   width: 100%;
   background-color: #175d7e;
@@ -236,12 +229,13 @@ body {
   text-align: center;
 }
 
+#accesion-input::placeholder,
 #sheet-url-input::placeholder {
   color: rgba(255, 255, 255, 0.7);
   font-style: italic;
 }
 
-/* Select personalizado con la flecha */
+/* Select con la flecha */
 .select-field {
   appearance: none;
   -webkit-appearance: none;
@@ -259,7 +253,6 @@ body {
   color: #ffffff;
 }
 
-/* Botón Guardar en la esquina inferior derecha */
 .sheets-footer {
   display: flex;
   justify-content: flex-end;
@@ -270,7 +263,6 @@ body {
   width: 200px;
 }
 
-/* Responsive para pantallas pequeñas */
 @media (max-width: 600px) {
   .app-container, .sheets-row {
     grid-template-columns: 1fr;
