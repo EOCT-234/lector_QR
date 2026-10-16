@@ -163,59 +163,121 @@ body {
 .status-msg.success { color: #059669; }
 .status-msg.error { color: #dc2626; }
 
-/* --- VISTA 2: VENTANA GOOGLE SHEETS --- */
-.sheets-card {
+/* --- VISTA 2: PEAQUEÑA Y BOCETO GOOGLE SHEETS --- */
+.sheets-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+}
+
+/* Filas con estructura de 2 columnas (Etiqueta fija a la izq / Campo a la der) */
+.sheets-row {
+  display: grid;
+  grid-template-columns: 180px 1fr;
+  gap: 12px;
+}
+
+.sheets-row.full-width {
+  grid-template-columns: 1fr;
+}
+
+/* Cajas / Etiquetas fijas (MAYÚSCULAS) */
+.label-fixed, .btn-fixed {
   background-color: #175d7e;
   border: 3px solid #0d3b52;
-  border-radius: 0 8px 8px 8px;
-  padding: 20px;
+  border-radius: 4px;
   color: #ffffff;
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-}
-
-.sheets-card h2 {
-  font-size: 1.3rem;
-}
-
-.sheets-description {
-  font-size: 0.9rem;
-  color: #e2e8f0;
-}
-
-.input-group {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.input-group label {
   font-weight: bold;
-  font-size: 0.95rem;
-}
-
-.input-group input {
-  padding: 10px;
-  border-radius: 6px;
-  border: 2px solid #0d3b52;
-  outline: none;
-  font-size: 0.95rem;
-}
-
-.sheet-status-info {
-  margin-top: 10px;
-  font-weight: bold;
-  font-size: 0.95rem;
-  background: rgba(255, 255, 255, 0.1);
-  padding: 10px;
-  border-radius: 6px;
+  font-size: 1rem;
+  padding: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   text-align: center;
 }
 
-/* Responsive para dispositivos móviles */
+.btn-fixed {
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.btn-fixed:hover {
+  background-color: #134c67;
+}
+
+.btn-fixed:active {
+  transform: scale(0.98);
+}
+
+/* Campos dinámicos de la derecha */
+.field-dynamic {
+  background-color: #175d7e;
+  border: 3px solid #0d3b52;
+  border-radius: 4px;
+  color: #ffffff;
+  padding: 12px 16px;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  min-height: 50px;
+}
+
+/* Input para el enlace de Google Sheets */
+#sheet-url-input {
+  width: 100%;
+  background-color: #175d7e;
+  border: 3px solid #0d3b52;
+  border-radius: 4px;
+  color: #ffffff;
+  padding: 14px 16px;
+  font-size: 1rem;
+  outline: none;
+  text-align: center;
+}
+
+#sheet-url-input::placeholder {
+  color: rgba(255, 255, 255, 0.7);
+  font-style: italic;
+}
+
+/* Select personalizado con la flecha */
+.select-field {
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 24px;
+  cursor: pointer;
+  width: 100%;
+  outline: none;
+}
+
+.select-field option {
+  background-color: #175d7e;
+  color: #ffffff;
+}
+
+/* Botón Guardar en la esquina inferior derecha */
+.sheets-footer {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 8px;
+}
+
+.sheets-footer .btn-fixed {
+  width: 200px;
+}
+
+/* Responsive para pantallas pequeñas */
 @media (max-width: 600px) {
-  .app-container {
+  .app-container, .sheets-row {
     grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .sheets-footer .btn-fixed {
+    width: 100%;
   }
 }
