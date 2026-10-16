@@ -1,4 +1,4 @@
-const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwWNcyzhdRExyCVKTX0YdIQGRLPZmAbRzAX_AZSypnWMaWdG9X9-GlNX3dSUgd23JPqKQ/exec";
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwa3I_03AedoserCc65NsMMSzHlZthCTMrk-35h6ey6L9W48kgfACRN8HcrWzXxd32P0g/exec";
 
 async function fetchDescriptorsVariables(sheetUrl) {
   if (!sheetUrl || !sheetUrl.includes("docs.google.com/spreadsheets")) {
