@@ -1,27 +1,33 @@
 let isProcessing = false;
 
 document.addEventListener("DOMContentLoaded", () => {
-  // 1. Inicialización del Lector QR
+  // 1. Limpiar el campo de enlace al iniciar
+  const urlInput = document.getElementById("sheet-url-input");
+  if (urlInput) {
+    urlInput.value = "";
+  }
+
+  // 2. Inicializar escáner QR
   if (typeof initQrScanner === "function") {
     initQrScanner(handleQrScanned);
   }
 
-  // 2. Navegación entre pestañas
+  // 3. Navegación entre pestañas
   initTabs();
 
-  // 3. Evento para copiar texto del QR
+  // 4. Evento para copiar texto del QR
   const copyBtn = document.getElementById("copy-btn");
   if (copyBtn) {
     copyBtn.addEventListener("click", copyToClipboard);
   }
 
-  // 4. Evento para botón CARGAR (Obtener lista de variables)
+  // 5. Evento para botón CARGAR (Variables)
   const btnCargar = document.getElementById("btn-cargar");
   if (btnCargar) {
     btnCargar.addEventListener("click", handleCargarVariables);
   }
 
-  // 5. Evento para botón GUARDAR (Enviar registro a Google Sheets)
+  // 6. Evento para botón GUARDAR (Solicita enlace emergente y crea la hoja 'registro')
   const btnGuardar = document.getElementById("btn-guardar");
   if (btnGuardar) {
     btnGuardar.addEventListener("click", handleGuardarDatos);
@@ -35,14 +41,18 @@ function initTabs() {
   tabButtons.forEach((btn) => {
     btn.addEventListener("click", () => {
       tabButtons.forEach((b) => b.classList.remove("active"));
-      tabContents.forEach((content) => content.classList.add("hidden"));
+      tabContents.forEach((content) => {
+        content.classList.remove("active");
+        content.classList.add("hidden");
+      });
 
       btn.classList.add("active");
       const targetId = btn.getAttribute("data-tab");
       const targetContent = document.getElementById(targetId);
-      
+
       if (targetContent) {
         targetContent.classList.remove("hidden");
+        targetContent.classList.add("active");
       }
     });
   });
@@ -56,7 +66,7 @@ async function handleCargarVariables() {
   const sheetUrl = urlInput ? urlInput.value.trim() : "";
 
   if (!sheetUrl) {
-    if (statusCarga) statusCarga.textContent = "Ingresa un enlace válido";
+    if (statusCarga) statusCarga.textContent = "Ingresa enlace de Sheets";
     return;
   }
 
@@ -75,12 +85,12 @@ async function handleCargarVariables() {
       });
     }
 
-    if (statusCarga) statusCarga.textContent = "Carga exitosa";
+    if (statusCarga) statusCarga.textContent = "¡Carga exitosa!";
 
   } catch (error) {
-    console.error("Detalle del error:", error);
+    console.error("Error al cargar variables:", error);
     if (statusCarga) {
-      statusCarga.textContent = typeof error === 'string' ? error : (error.message || "Error al cargar");
+      statusCarga.textContent = typeof error === "string" ? error : (error.message || "Error al cargar");
     }
   }
 }
@@ -110,69 +120,54 @@ function copyToClipboard() {
 
   navigator.clipboard.writeText(qrResultText.value)
     .then(() => {
-      copyBtn.textContent = "¡COPIADO!";
+      if (copyBtn) copyBtn.textContent = "¡COPIADO!";
       setTimeout(() => {
-        copyBtn.textContent = "COPIAR TEXTO";
+        if (copyBtn) copyBtn.textContent = "COPIAR TEXTO";
       }, 2000);
     })
     .catch(() => {
       qrResultText.select();
-      document.execCommand('copy');
-      copyBtn.textContent = "¡COPIADO!";
+      document.execCommand("copy");
+      if (copyBtn) copyBtn.textContent = "¡COPIADO!";
       setTimeout(() => {
-        copyBtn.textContent = "COPIAR TEXTO";
+        if (copyBtn) copyBtn.textContent = "COPIAR TEXTO";
       }, 2000);
     });
 }
 
 /**
- * Función principal que recolecta los datos y los envía a Google Sheets
+ * Solicita el enlace mediante ventana emergente y crea la hoja 'registro'
  */
 async function handleGuardarDatos() {
-  const sheetUrl = document.getElementById("sheet-url-input")?.value.trim() || "";
-  const accesion = document.getElementById("accesion-input")?.value.trim() || "";
-  const variable = document.getElementById("select-variable")?.value || "";
-  const repeticion = document.getElementById("val-repeticion")?.value.trim() || "";
-  const medicion = document.getElementById("val-medicion")?.value.trim() || "";
+  const statusCarga = document.getElementById("status-carga");
 
-  if (!sheetUrl) {
-    alert("Ingresa primero el enlace de Google Sheets.");
+  // Ventana emergente para pedir el enlace del libro de destino
+  const inputUrl = prompt("Ingresa el enlace de Google Sheets donde deseas guardar:");
+
+  if (!inputUrl || inputUrl.trim() === "") {
+    alert("Operación cancelada. Se requiere un enlace de Google Sheets.");
     return;
   }
 
-  if (!accesion || !variable || !repeticion || !medicion) {
-    alert("Completa todos los campos (Accesión, Variable, Repetición y Medición) antes de guardar.");
-    return;
-  }
+  const sheetUrlFinal = inputUrl.trim();
 
   const btnGuardar = document.getElementById("btn-guardar");
   if (btnGuardar) {
     btnGuardar.disabled = true;
     btnGuardar.textContent = "GUARDANDO...";
   }
-
-  const payload = {
-    sheetUrl: sheetUrl,
-    accesion: accesion,
-    variable: variable,
-    repeticion: repeticion,
-    medicion: medicion
-  };
+  if (statusCarga) statusCarga.textContent = "Creando hoja 'registro'...";
 
   try {
-    await saveRecordToSheets(payload);
+    await saveRecordToSheets({ sheetUrl: sheetUrlFinal });
 
-    alert("¡Registro guardado correctamente en Google Sheets!");
-
-    // Limpia únicamente Repetición y Medición para agilizar el ingreso continuo
-    const repInput = document.getElementById("val-repeticion");
-    const medInput = document.getElementById("val-medicion");
-    if (repInput) repInput.value = "";
-    if (medInput) medInput.value = "";
+    if (statusCarga) statusCarga.textContent = "¡Hoja 'registro' lista!";
+    alert("Proceso ejecutado. Revisa si se creó la pestaña 'registro' en tu Google Sheets.");
 
   } catch (error) {
     console.error("Error al guardar:", error);
-    alert("Error al guardar en Google Sheets: " + error.message);
+    if (statusCarga) statusCarga.textContent = "Error al guardar";
+    alert("Error: " + (error.message || error));
   } finally {
     if (btnGuardar) {
       btnGuardar.disabled = false;
