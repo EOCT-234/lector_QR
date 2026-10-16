@@ -1,5 +1,5 @@
-// URL de la aplicación web desplegada en Google Apps Script
-const SAVE_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwvA-_zRgY2Hta12l4pOIYgeSFSBBP4cH742qVTkq7DbBkARcmXS_J8FCKnQFAlbvHAbA/exec";
+// URL de la aplicación web actualizada desplegada en Google Apps Script
+const SAVE_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxcBVJJdbtiI69zssqNTVgTNpIGT5K8PjyZDZZngRrZClbHiOzRxphCW2P5GMAFxJEpog/exec";
 
 /**
  * Obtiene la columna 'variable' de la hoja 'descriptores' directamente
@@ -82,7 +82,7 @@ async function saveRecordToSheets(data) {
     throw new Error("Falta configurar la URL de Apps Script en SAVE_WEB_APP_URL");
   }
 
-  // Usamos text/plain para evitar que el navegador bloquee el contenido enviado
+  // Usamos text/plain para garantizar que la solicitud no sufra bloqueos de preflight por CORS
   await fetch(SAVE_WEB_APP_URL, {
     method: "POST",
     mode: "no-cors",
