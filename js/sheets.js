@@ -1,4 +1,4 @@
-const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwWNcyzhdRExyCVKTX0YdIQGRLPZmAbRzAX_AZSypnWMaWdG9X9-GlNX3dSUgd23JPqKQ/exec";
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzQv94yEEN6HMHS58VGdvMNBtq8au6UptL-Zu3ujqEeRpoWuwQXImuv_2zhCs9IMwC92A/exec";
 
 /**
  * Petición mediante JSONP para evitar bloqueos de CORS de Google Apps Script
@@ -9,21 +9,21 @@ function fetchDescriptorsVariables(sheetUrl) {
       return reject("Por favor ingresa un enlace válido de Google Sheets.");
     }
 
-    // Nombre único para la función callback global
+    // Genera un nombre de función callback único
     const callbackName = "jsonp_callback_" + Math.round(100000 * Math.random());
 
-    // Crear elemento script dinámico
+    // Crea el elemento script dinámico
     const script = document.createElement("script");
     const encodedUrl = encodeURIComponent(sheetUrl);
     script.src = `${WEB_APP_URL}?sheetUrl=${encodedUrl}&callback=${callbackName}`;
 
-    // Configurar tiempo de espera (Timeout de 10 segundos)
+    // Tiempo límite de respuesta (10 segundos)
     const timeout = setTimeout(() => {
       cleanup();
       reject("Tiempo de espera agotado. Verifica el enlace y el despliegue del script.");
     }, 10000);
 
-    // Definir la función global temporal
+    // Definición de la función global temporal para recibir los datos
     window[callbackName] = function(data) {
       cleanup();
       if (data && data.status === "success" && Array.isArray(data.variables)) {
@@ -33,7 +33,7 @@ function fetchDescriptorsVariables(sheetUrl) {
       }
     };
 
-    // Manejo de errores de red
+    // Manejo de error en la petición
     script.onerror = function() {
       cleanup();
       reject("Error de conexión al intentar comunicarse con Apps Script.");
@@ -45,7 +45,7 @@ function fetchDescriptorsVariables(sheetUrl) {
       delete window[callbackName];
     }
 
-    // Insertar el script en el documento para iniciar la petición
+    // Inserta el script para disparar la llamada a Apps Script
     document.body.appendChild(script);
   });
 }
