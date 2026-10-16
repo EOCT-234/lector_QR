@@ -1,7 +1,7 @@
 let isProcessing = false;
 
 document.addEventListener("DOMContentLoaded", () => {
-  // 1. Limpiar el campo del enlace para que comience vacío al actualizar la página
+  // 1. Asegurar que la casilla de la URL inicie completamente vacía al recargar
   const urlInput = document.getElementById("sheet-url-input");
   if (urlInput) {
     urlInput.value = "";
@@ -21,13 +21,13 @@ document.addEventListener("DOMContentLoaded", () => {
     copyBtn.addEventListener("click", copyToClipboard);
   }
 
-  // 5. Evento para botón CARGAR (Obtener lista de variables desde Google Apps Script)
+  // 5. Evento para el botón CARGAR (Obtener lista de variables desde la hoja)
   const btnCargar = document.getElementById("btn-cargar");
   if (btnCargar) {
     btnCargar.addEventListener("click", handleCargarVariables);
   }
 
-  // 6. Evento para botón GUARDAR (Enviar registro a Google Sheets)
+  // 6. Evento para el botón GUARDAR (Enviar registro a Google Sheets)
   const btnGuardar = document.getElementById("btn-guardar");
   if (btnGuardar) {
     btnGuardar.addEventListener("click", handleGuardarDatos);
@@ -190,7 +190,7 @@ async function handleGuardarDatos() {
 
     if (statusCarga) statusCarga.textContent = "¡Guardado exitoso!";
 
-    // Limpia únicamente Repetición y Medición para agilizar el ingreso continuo
+    // Limpia únicamente Repetición y Medición para agilizar la entrada rápida
     const repInput = document.getElementById("val-repeticion");
     const medInput = document.getElementById("val-medicion");
     if (repInput) repInput.value = "";

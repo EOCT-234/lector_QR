@@ -1,38 +1,77 @@
-// URL de la aplicación web actualizada desplegada en Google Apps Script (Versión 14)
+// URL de la aplicación web desplegada en Google Apps Script
 const SAVE_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzQKe-J8eaRmxhpkIy_wO8HKsJmtpeHamXlOMv3Gh_b10K2VxVMqYh8DgbfmBYFZdx_/exec";
 
 /**
- * Pide a Google Apps Script que lea la columna 'variable' de la pestaña 'descriptores'
+ * Obtiene la columna 'variable' de la hoja 'descriptores' directamente
+ * mediante la API de exportación pública CSV de Google Sheets (Compatible con Celulares).
  */
 async function fetchDescriptorsVariables(sheetUrl) {
   if (!sheetUrl) {
     throw new Error("Ingresa un enlace válido de Google Sheets");
   }
 
-  const response = await fetch(SAVE_WEB_APP_URL, {
-    method: "POST",
-    headers: {
-      "Content-Type": "text/plain;charset=utf-8"
-    },
-    body: JSON.stringify({
-      action: "getVariables",
-      sheetUrl: sheetUrl
-    })
-  });
+  // 1. Limpiar espacios del enlace
+  const cleanUrl = sheetUrl.trim();
 
-  const resText = await response.text();
-  let result;
+  // 2. Extraer el ID del libro mediante Expresión Regular
+  const idMatch = cleanUrl.match(/\/d\/([a-zA-Z0-9-_]+)/);
+  if (!idMatch || !idMatch[1]) {
+    throw new Error("No se pudo extraer el ID del enlace de Google Sheets");
+  }
+
+  const spreadsheetId = idMatch[1];
+  
+  // 3. Construir la URL directa de exportación CSV para la hoja 'descriptores'
+  const csvUrl = `https://docs.google.com/spreadsheets/d/${spreadsheetId}/gviz/tq?tqx=out:csv&sheet=descriptores`;
+
   try {
-    result = JSON.parse(resText);
-  } catch (e) {
-    throw new Error("Respuesta inválida del servidor");
-  }
+    const response = await fetch(csvUrl);
 
-  if (result.status === "error") {
-    throw new Error(result.message);
-  }
+    if (!response.ok) {
+      throw new Error("No se pudo acceder a la hoja. Verifica que el enlace esté compartido como público.");
+    }
 
-  return result.variables;
+    const csvText = await response.text();
+
+    if (!csvText || csvText.includes("<!DOCTYPE html>")) {
+      throw new Error("Verifica que la pestaña se llame 'descriptores' y la hoja sea pública.");
+    }
+
+    // 4. Procesar el contenido CSV por líneas
+    const lines = csvText.split(/\r?\n/).map(line => line.trim()).filter(line => line.length > 0);
+
+    if (lines.length < 2) {
+      throw new Error("La hoja 'descriptores' está vacía.");
+    }
+
+    // Parsear la primera fila (encabezados)
+    const headers = parseCsvLine(lines[0]).map(h => h.toLowerCase().trim());
+
+    // Buscar el índice de la columna 'variable'
+    let colIndex = headers.indexOf("variable");
+    if (colIndex === -1) {
+      colIndex = 0; // Si no encuentra el encabezado 'variable', usa la Columna A
+    }
+
+    // Extraer las opciones de la columna
+    const variables = [];
+    for (let i = 1; i < lines.length; i++) {
+      const row = parseCsvLine(lines[i]);
+      if (row[colIndex] && row[colIndex].trim() !== "") {
+        variables.push(row[colIndex].trim());
+      }
+    }
+
+    if (variables.length === 0) {
+      throw new Error("No se encontraron datos en la columna 'variable'.");
+    }
+
+    return variables;
+
+  } catch (error) {
+    console.error("Error al obtener variables desde Google Sheets:", error);
+    throw error;
+  }
 }
 
 /**
@@ -43,6 +82,7 @@ async function saveRecordToSheets(data) {
     throw new Error("Falta configurar la URL de Apps Script en SAVE_WEB_APP_URL");
   }
 
+  // Usamos text/plain y no-cors para evitar bloqueos en celulares
   await fetch(SAVE_WEB_APP_URL, {
     method: "POST",
     mode: "no-cors",
@@ -53,4 +93,27 @@ async function saveRecordToSheets(data) {
   });
 
   return { status: "success" };
+}
+
+/**
+ * Función auxiliar para parsear líneas formateadas en CSV
+ */
+function parseCsvLine(line) {
+  const result = [];
+  let current = '';
+  let inQuotes = false;
+
+  for (let i = 0; i < line.length; i++) {
+    const char = line[i];
+    if (char === '"') {
+      inQuotes = !inQuotes;
+    } else if (char === ',' && !inQuotes) {
+      result.push(current.replace(/^"|"$/g, '').trim());
+      current = '';
+    } else {
+      current += char;
+    }
+  }
+  result.push(current.replace(/^"|"$/g, '').trim());
+  return result;
 }
