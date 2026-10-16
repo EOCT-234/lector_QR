@@ -1,9 +1,8 @@
-// URL de la aplicación web desplegada en Google Apps Script
-const SAVE_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyQchGgtd0--Dj_Dsij0knnDEiMf7Hs5mSYEW5iUOLuYCOkq9f_lFwaw_VrseOOcyI/exec";
+// Pega aquí la URL que copiaste en el Paso 3
+const SAVE_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyDdjiaVWwj7fOKlJ1UlyECgcLaIG0mKUWdS-a-YzGn11j7sENjPi1qCd7BBUgBedJa/exec";
 
 /**
  * Obtiene la columna 'variable' de la hoja 'descriptores' mediante exportación pública CSV.
- * Soporta delimitadores dinámicos (comas o tabulaciones).
  */
 async function fetchDescriptorsVariables(sheetUrl) {
   if (!sheetUrl) {
@@ -69,11 +68,11 @@ async function fetchDescriptorsVariables(sheetUrl) {
 }
 
 /**
- * Envía la solicitud a Google Apps Script para crear la hoja 'registro' al lado de 'descriptores'
+ * Envía la orden a Apps Script en modo no-cors de forma garantizada
  */
 async function saveRecordToSheets(data) {
-  if (!SAVE_WEB_APP_URL) {
-    throw new Error("Falta configurar la URL de Apps Script en SAVE_WEB_APP_URL");
+  if (!SAVE_WEB_APP_URL || SAVE_WEB_APP_URL.includes("TU_NUEVA_URL_AQUI")) {
+    throw new Error("Falta configurar la URL válida de Apps Script");
   }
 
   await fetch(SAVE_WEB_APP_URL, {
