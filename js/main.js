@@ -1,24 +1,30 @@
 let isProcessing = false;
 
 document.addEventListener("DOMContentLoaded", () => {
-  // Inicialización del Lector QR
+  // 1. Inicialización del Lector QR
   if (typeof initQrScanner === "function") {
     initQrScanner(handleQrScanned);
   }
 
-  // Inicialización de Pestañas
+  // 2. Inicialización de Pestañas
   initTabs();
 
-  // Evento Botón Copiar Texto
+  // 3. Evento Botón Copiar Texto
   const copyBtn = document.getElementById("copy-btn");
   if (copyBtn) {
     copyBtn.addEventListener("click", copyToClipboard);
   }
 
-  // Evento Botón CARGAR en la pestaña Google Sheets
+  // 4. Evento Botón CARGAR (Obtener variables de Google Sheets)
   const btnCargar = document.getElementById("btn-cargar");
   if (btnCargar) {
     btnCargar.addEventListener("click", handleCargarVariables);
+  }
+
+  // 5. Evento Botón GUARDAR (Capturar la fila completa)
+  const btnGuardar = document.getElementById("btn-guardar");
+  if (btnGuardar) {
+    btnGuardar.addEventListener("click", handleGuardarDatos);
   }
 });
 
@@ -117,4 +123,34 @@ function copyToClipboard() {
         copyBtn.textContent = "COPIAR TEXTO";
       }, 2000);
     });
+}
+
+/**
+ * Función para procesar y capturar los datos al presionar GUARDAR
+ */
+function handleGuardarDatos() {
+  const accesion = document.getElementById("accesion-input")?.value.trim() || "";
+  const variable = document.getElementById("select-variable")?.value || "";
+  const repeticion = document.getElementById("val-repeticion")?.value.trim() || "";
+  const medicion = document.getElementById("val-medicion")?.value.trim() || "";
+
+  if (!accesion || !variable || !repeticion || !medicion) {
+    alert("Por favor completa todos los campos (Accesión, Variable, Repetición y Medición).");
+    return;
+  }
+
+  const registro = {
+    accesion: accesion,
+    variable: variable,
+    repeticion: repeticion,
+    medicion: medicion,
+    fecha: new Date().toLocaleString()
+  };
+
+  console.log("Datos capturados para guardar:", registro);
+  alert(`¡Registro capturado con éxito!\n\nAccesión: ${registro.accesion}\nVariable: ${registro.variable}\nRepetición: ${registro.repeticion}\nMedición: ${registro.medicion}`);
+  
+  // Opcional: Limpiar los campos tras guardar
+  document.getElementById("val-repeticion").value = "";
+  document.getElementById("val-medicion").value = "";
 }
