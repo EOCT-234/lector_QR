@@ -6,7 +6,7 @@
 }
 
 body {
-  background-color: #f4f7f6;
+  background-color: #f4f6f5;
   color: #333;
   display: flex;
   justify-content: center;
@@ -37,7 +37,7 @@ body {
   background: transparent;
   border: none;
   font-size: 15px;
-  font-weight: 600;
+  font-weight: 700;
   color: #666;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -45,12 +45,12 @@ body {
 }
 
 .tab-button.active {
-  color: #2e7d32;
-  border-bottom-color: #2e7d32;
+  color: #2d7738;
+  border-bottom-color: #2d7738;
 }
 
 .tab-button:hover {
-  color: #2e7d32;
+  color: #2d7738;
 }
 
 /* Contenido de pestañas */
@@ -64,7 +64,7 @@ body {
 
 h2 {
   font-size: 18px;
-  color: #2e7d32;
+  color: #2d7738;
   margin-bottom: 15px;
   text-align: center;
 }
@@ -102,7 +102,7 @@ input:focus,
 select:focus,
 textarea:focus {
   outline: none;
-  border-color: #2e7d32;
+  border-color: #2d7738;
   background-color: #ffffff;
 }
 
@@ -116,7 +116,7 @@ textarea {
 .btn-primary {
   width: 100%;
   padding: 12px;
-  background-color: #2e7d32;
+  background-color: #2d7738;
   color: #ffffff;
   border: none;
   border-radius: 6px;
@@ -128,17 +128,17 @@ textarea {
 }
 
 .btn-primary:hover {
-  background-color: #1b5e20;
+  background-color: #225a2a;
 }
 
 .btn-secondary {
   width: 100%;
-  padding: 10px;
-  background-color: #4caf50;
+  padding: 12px;
+  background-color: #2d7738;
   color: #ffffff;
   border: none;
   border-radius: 6px;
-  font-size: 13px;
+  font-size: 15px;
   font-weight: bold;
   cursor: pointer;
   transition: background-color 0.3s ease;
@@ -146,7 +146,7 @@ textarea {
 }
 
 .btn-secondary:hover {
-  background-color: #388e3c;
+  background-color: #225a2a;
 }
 
 /* Mensajes de Estado */
@@ -162,9 +162,9 @@ textarea {
 }
 
 .status-message.success {
-  color: #2e7d32;
+  color: #2d7738;
 }
 
 .status-message.error {
-  color: #d32f2f;
+  color: #2d7738;
 }
