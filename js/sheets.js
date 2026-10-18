@@ -1,114 +1,70 @@
-// URL desplegada de Google Apps Script
-const SAVE_WEB_APP_URL = "hhttps://script.google.com/macros/s/AKfycbwd2fVU1P04MmfMvkQM8U4bYYB_PZsjjRsCf_ZCjaSFpMM3OIqejR0ZpPmsV2tMHOM2/exec";
+// URL desplegada de Google Apps Script (Corregido 'https' y actualizado a tu nueva URL)
+const SAVE_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwI_LzIVPXcrt6yKJguR5t81yudU_3yiFW_78RqAentwjqa449nddvsxda-3teeHieD5Q/exec";
 
 /**
- * Obtiene la columna 'variable' de la hoja 'descriptores' mediante exportación pública CSV.
+ * Obtiene la columna 'variable' de la pestaña 'descriptores' directamente vía Apps Script o CSV
  */
 async function fetchDescriptorsVariables(sheetUrl) {
-  if (!sheetUrl) {
-    throw new Error("Ingresa un enlace válido de Google Sheets");
-  }
-
-  const cleanUrl = sheetUrl.trim();
-  const idMatch = cleanUrl.match(/\/d\/([a-zA-Z0-9-_]+)/);
-  if (!idMatch || !idMatch[1]) {
-    throw new Error("No se pudo extraer el ID del enlace de Google Sheets");
-  }
-
-  const spreadsheetId = idMatch[1];
-  const csvUrl = `https://docs.google.com/spreadsheets/d/${spreadsheetId}/gviz/tq?tqx=out:csv&sheet=descriptores`;
+  // Si no se proporciona un sheetUrl, la función llamará a Apps Script para leer la plantilla por defecto
+  const targetUrl = sheetUrl ? sheetUrl.trim() : "";
+  const requestUrl = `${SAVE_WEB_APP_URL}?sheetUrl=${encodeURIComponent(targetUrl)}`;
 
   try {
-    const response = await fetch(csvUrl);
+    const response = await fetch(requestUrl, {
+      method: "GET",
+      redirect: "follow"
+    });
 
     if (!response.ok) {
-      throw new Error("No se pudo acceder a la hoja. Verifica que el enlace esté compartido como público.");
+      throw new Error("No se pudo conectar con el servicio de Google Apps Script.");
     }
 
-    const csvText = await response.text();
+    const result = await response.json();
 
-    if (!csvText || csvText.toLowerCase().includes("<!doctype html>")) {
-      throw new Error("Verifica que la pestaña se llame 'descriptores' y la hoja esté compartida como pública.");
+    if (result.status === "error") {
+      throw new Error(result.message || "Error al leer la hoja de variables.");
     }
 
-    const lines = csvText.split(/\r?\n/).map(line => line.trim()).filter(line => line.length > 0);
-
-    if (lines.length < 2) {
-      throw new Error("La hoja 'descriptores' está vacía o no tiene datos suficientes.");
-    }
-
-    const firstLine = lines[0];
-    const delimiter = firstLine.includes("\t") ? "\t" : ",";
-
-    const headers = parseCsvLine(firstLine, delimiter).map(h => h.toLowerCase().trim());
-
-    let colIndex = headers.indexOf("variable");
-    if (colIndex === -1) {
-      colIndex = 0;
-    }
-
-    const variables = [];
-    for (let i = 1; i < lines.length; i++) {
-      const row = parseCsvLine(lines[i], delimiter);
-      if (row[colIndex] && row[colIndex].trim() !== "") {
-        variables.push(row[colIndex].trim());
-      }
-    }
-
-    if (variables.length === 0) {
-      throw new Error("No se encontraron datos en la columna 'variable'.");
-    }
-
-    return variables;
+    return result.variables || [];
 
   } catch (error) {
-    console.error("Error al obtener variables desde Google Sheets:", error);
+    console.error("Error al obtener variables:", error);
     throw error;
   }
 }
 
 /**
- * Envía el enlace a Apps Script como parámetros de formulario compatibles con no-cors
+ * Envía todos los datos (copia, variables, accesión, variable, repetición y medición) a Apps Script
  */
 async function saveRecordToSheets(data) {
   if (!SAVE_WEB_APP_URL) {
     throw new Error("Falta configurar la URL de Apps Script en SAVE_WEB_APP_URL");
   }
 
-  const formData = new URLSearchParams();
-  formData.append("sheetUrl", data.sheetUrl);
+  // Prepara el paquete completo de datos en JSON
+  const payload = {
+    nuevoNombre: data.nuevoNombre || "",
+    variablesManuales: data.variablesManuales || [],
+    sheetUrl: data.sheetUrl || "",
+    accesion: data.accesion || "",
+    variable: data.variable || "",
+    repeticion: data.repeticion || "",
+    medicion: data.medicion || ""
+  };
 
-  await fetch(SAVE_WEB_APP_URL, {
-    method: "POST",
-    mode: "no-cors",
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded"
-    },
-    body: formData.toString()
-  });
+  try {
+    const response = await fetch(SAVE_WEB_APP_URL, {
+      method: "POST",
+      mode: "no-cors", // Requerido para evitar bloqueos CORS en peticiones cruzadas
+      headers: {
+        "Content-Type": "text/plain;charset=utf-8"
+      },
+      body: JSON.stringify(payload)
+    });
 
-  return { status: "success" };
-}
-
-/**
- * Función auxiliar para parsear líneas CSV
- */
-function parseCsvLine(line, delimiter = ",") {
-  const result = [];
-  let current = '';
-  let inQuotes = false;
-
-  for (let i = 0; i < line.length; i++) {
-    const char = line[i];
-    if (char === '"') {
-      inQuotes = !inQuotes;
-    } else if (char === delimiter && !inQuotes) {
-      result.push(current.replace(/^"|"$/g, '').trim());
-      current = '';
-    } else {
-      current += char;
-    }
+    return { status: "success" };
+  } catch (error) {
+    console.error("Error en la solicitud POST:", error);
+    throw new Error("No se pudo enviar la información a Google Sheets.");
   }
-  result.push(current.replace(/^"|"$/g, '').trim());
-  return result;
 }
