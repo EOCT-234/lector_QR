@@ -1,5 +1,39 @@
 // URL desplegada de Google Apps Script
-const SAVE_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwKF_Wvvy16Wkx-bmwtSpIUUcYxhAdJGCVDGdrlHxhpuzkvIJsbvgtbcSUuRjq-2QoU_Q/exec";
+const SAVE_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbx4739QWxga8PsjGV7S0day0Xi4V7WPg9_p17gbzubTGY1BwGXLoe-0FzOkj6fOD7gY/exec";
+
+/**
+ * Función auxiliar para realizar peticiones GET usando JSONP (evita bloqueos de CORS en navegadores)
+ */
+function fetchJSONP(url) {
+  return new Promise((resolve, reject) => {
+    const callbackName = 'jsonp_cb_' + Math.round(100000 * Math.random());
+    const script = document.createElement('script');
+
+    // Manejador de respuesta global
+    window[callbackName] = function(data) {
+      delete window[callbackName];
+      document.body.removeChild(script);
+      if (data && data.status === "error") {
+        reject(new Error(data.message || "Error en la petición a Apps Script"));
+      } else {
+        resolve(data);
+      }
+    };
+
+    // Manejo de errores de red
+    script.onerror = function() {
+      delete window[callbackName];
+      if (document.body.contains(script)) {
+        document.body.removeChild(script);
+      }
+      reject(new Error("No se pudo conectar con Google Apps Script. Revisa los permisos de despliegue."));
+    };
+
+    const separator = url.includes('?') ? '&' : '?';
+    script.src = `${url}${separator}callback=${callbackName}`;
+    document.body.appendChild(script);
+  });
+}
 
 /**
  * Solicita a Apps Script la clonación de la plantilla original
@@ -10,29 +44,7 @@ async function createSheetCopy() {
   }
 
   const requestUrl = `${SAVE_WEB_APP_URL}?action=crear_copia`;
-
-  try {
-    const response = await fetch(requestUrl, {
-      method: "GET",
-      mode: "cors",
-      redirect: "follow"
-    });
-
-    if (!response.ok) {
-      throw new Error("No se pudo conectar con Google Apps Script.");
-    }
-
-    const result = await response.json();
-
-    if (result.status === "error") {
-      throw new Error(result.message || "Error al duplicar la plantilla.");
-    }
-
-    return result;
-  } catch (error) {
-    console.error("Error al crear copia:", error);
-    throw new Error("Failed to fetch. Revisa la configuración de versión y permisos en Apps Script.");
-  }
+  return await fetchJSONP(requestUrl);
 }
 
 /**
@@ -41,24 +53,8 @@ async function createSheetCopy() {
 async function fetchDescriptorsVariables(sheetUrl) {
   const targetUrl = sheetUrl ? sheetUrl.trim() : "";
   const requestUrl = `${SAVE_WEB_APP_URL}?sheetUrl=${encodeURIComponent(targetUrl)}`;
-
-  try {
-    const response = await fetch(requestUrl, {
-      method: "GET",
-      mode: "cors",
-      redirect: "follow"
-    });
-    
-    if (!response.ok) throw new Error("Error al conectar con Google Apps Script.");
-
-    const result = await response.json();
-    if (result.status === "error") throw new Error(result.message || "Error al cargar variables.");
-
-    return result.variables || [];
-  } catch (error) {
-    console.error("Error al obtener variables:", error);
-    throw error;
-  }
+  const result = await fetchJSONP(requestUrl);
+  return result.variables || [];
 }
 
 /**
@@ -79,24 +75,7 @@ async function addMultipleVariablesToSheet(sheetUrl, listaVariables) {
     variablesJSON: JSON.stringify(listaVariables)
   });
 
-  try {
-    const response = await fetch(`${SAVE_WEB_APP_URL}?${queryParams.toString()}`, {
-      method: "GET",
-      mode: "cors",
-      redirect: "follow"
-    });
-
-    const result = await response.json();
-
-    if (result.status === "error") {
-      throw new Error(result.message || "Error al agregar las variables.");
-    }
-
-    return result;
-  } catch (error) {
-    console.error("Error al agregar variables:", error);
-    throw error;
-  }
+  return await fetchJSONP(`${SAVE_WEB_APP_URL}?${queryParams.toString()}`);
 }
 
 /**
