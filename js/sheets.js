@@ -1,5 +1,5 @@
 // URL desplegada de Google Apps Script
-const SAVE_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwI_LzIVPXcrt6yKJguR5t81yudU_3yiFW_78RqAentwjqa449nddvsxda-3teeHieD5Q/exec";
+const SAVE_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwKF_Wvvy16Wkx-bmwtSpIUUcYxhAdJGCVDGdrlHxhpuzkvIJsbvgtbcSUuRjq-2QoU_Q/exec";
 
 /**
  * Solicita a Apps Script la clonación de la plantilla original
@@ -14,6 +14,7 @@ async function createSheetCopy() {
   try {
     const response = await fetch(requestUrl, {
       method: "GET",
+      mode: "cors",
       redirect: "follow"
     });
 
@@ -27,10 +28,10 @@ async function createSheetCopy() {
       throw new Error(result.message || "Error al duplicar la plantilla.");
     }
 
-    return result; // Retorna { status: 'success', sheetUrl: 'https://docs.google.com/...' }
+    return result;
   } catch (error) {
     console.error("Error al crear copia:", error);
-    throw error;
+    throw new Error("Failed to fetch. Revisa la configuración de versión y permisos en Apps Script.");
   }
 }
 
@@ -42,7 +43,12 @@ async function fetchDescriptorsVariables(sheetUrl) {
   const requestUrl = `${SAVE_WEB_APP_URL}?sheetUrl=${encodeURIComponent(targetUrl)}`;
 
   try {
-    const response = await fetch(requestUrl, { method: "GET", redirect: "follow" });
+    const response = await fetch(requestUrl, {
+      method: "GET",
+      mode: "cors",
+      redirect: "follow"
+    });
+    
     if (!response.ok) throw new Error("Error al conectar con Google Apps Script.");
 
     const result = await response.json();
@@ -73,14 +79,24 @@ async function addMultipleVariablesToSheet(sheetUrl, listaVariables) {
     variablesJSON: JSON.stringify(listaVariables)
   });
 
-  const response = await fetch(`${SAVE_WEB_APP_URL}?${queryParams.toString()}`);
-  const result = await response.json();
+  try {
+    const response = await fetch(`${SAVE_WEB_APP_URL}?${queryParams.toString()}`, {
+      method: "GET",
+      mode: "cors",
+      redirect: "follow"
+    });
 
-  if (result.status === "error") {
-    throw new Error(result.message || "Error al agregar las variables.");
+    const result = await response.json();
+
+    if (result.status === "error") {
+      throw new Error(result.message || "Error al agregar las variables.");
+    }
+
+    return result;
+  } catch (error) {
+    console.error("Error al agregar variables:", error);
+    throw error;
   }
-
-  return result;
 }
 
 /**
@@ -91,7 +107,6 @@ async function saveRecordToSheets(data) {
     throw new Error("Falta configurar la URL de Apps Script");
   }
 
-  // Si no hay URL cargada, primero crea la copia de la plantilla
   if (!data.sheetUrl) {
     const copiaResult = await createSheetCopy();
     data.sheetUrl = copiaResult.sheetUrl;
