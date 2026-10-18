@@ -22,30 +22,37 @@
     </div>
 
     <!-- Pestaña 1: Inicio -->
-    <div id="inicio-tab" class="tab-content active">
-      <div class="form-group">
-        <button id="btn-crear-hoja" class="btn btn-full">CARGAR / CREAR HOJA DE TRABAJO</button>
-      </div>
+<div id="inicio-tab" class="tab-content active">
+  <div class="form-group">
+    <button id="btn-crear-hoja" class="btn btn-full">CARGAR / CREAR HOJA DE TRABAJO</button>
+  </div>
 
-      <!-- Muestra el nuevo enlace generado de Google Sheets -->
-      <div class="form-group">
-        <label for="nuevo-enlace-input">Nuevo Enlace Generado:</label>
-        <input type="text" id="nuevo-enlace-input" readonly placeholder="El enlace aparecerá aquí al hacer clic en CARGAR...">
-      </div>
+  <!-- Muestra el nuevo enlace generado -->
+  <div class="form-group">
+    <label for="nuevo-enlace-input">Nuevo Enlace Generado:</label>
+    <input type="text" id="nuevo-enlace-input" readonly placeholder="El enlace aparecerá aquí al hacer clic en CARGAR...">
+  </div>
 
-      <hr style="margin: 20px 0; border: 0; border-top: 1px solid #ccc;">
+  <hr style="margin: 20px 0; border: 0; border-top: 1px solid #ccc;">
 
-      <!-- Recuadro para agregar nuevas variables a la hoja 'descriptores' -->
-      <div class="form-group">
-        <label for="nueva-variable-input">Agregar Nueva Variable:</label>
-        <div class="input-with-button" style="display: flex; gap: 8px;">
-          <input type="text" id="nueva-variable-input" placeholder="Ej: Diámetro de fruto">
-          <button id="btn-agregar-var" class="btn">AGREGAR</button>
-        </div>
-      </div>
-      
-      <div id="status-inicio" class="status-text"></div>
-    </div>
+  <!-- Recuadro para múltiples variables -->
+  <div class="form-group">
+    <label for="lista-variables-textarea">Agregar Lista de Variables (una por línea, hasta 35 o más):</label>
+    <textarea 
+      id="lista-variables-textarea" 
+      rows="5" 
+      placeholder="Ejemplo:&#10;Altura de planta&#10;Diámetro de tallo&#10;Número de frutos&#10;Peso fresco"
+      style="width: 100%; resize: vertical; min-height: 120px; font-family: inherit; padding: 10px; border: 1px solid #ccc; border-radius: 4px;"
+    ></textarea>
+  </div>
+
+  <!-- Botón para registrar la lista completa en 'descriptores' -->
+  <div class="form-group">
+    <button id="btn-agregar-variables-lista" class="btn btn-full btn-success">CARGAR VARIABLES A LA HOJA</button>
+  </div>
+
+  <div id="status-inicio" class="status-text"></div>
+</div>
 
     <!-- Pestaña 2: Lector QR -->
     <div id="qr-tab" class="tab-content hidden">

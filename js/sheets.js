@@ -1,4 +1,4 @@
-// URL desplegada de tu Google Apps Script
+// URL desplegada de Google Apps Script
 const SAVE_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwI_LzIVPXcrt6yKJguR5t81yudU_3yiFW_78RqAentwjqa449nddvsxda-3teeHieD5Q/exec";
 
 /**
@@ -56,24 +56,28 @@ async function fetchDescriptorsVariables(sheetUrl) {
 }
 
 /**
- * Guarda una nueva variable en la hoja 'descriptores'
+ * Envía una lista de múltiples variables a la pestaña 'descriptores'
  */
-async function addVariableToSheet(sheetUrl, nuevaVariable) {
-  if (!sheetUrl || !nuevaVariable) {
-    throw new Error("Por favor crea o carga primero un enlace de hoja de cálculo.");
+async function addMultipleVariablesToSheet(sheetUrl, listaVariables) {
+  if (!sheetUrl) {
+    throw new Error("Primero debes crear o ingresar la URL de la hoja de cálculo.");
+  }
+
+  if (!listaVariables || listaVariables.length === 0) {
+    throw new Error("Escribe al menos una variable en el cuadro.");
   }
 
   const queryParams = new URLSearchParams({
-    action: "agregar_variable",
+    action: "agregar_variables_lista",
     sheetUrl: sheetUrl,
-    nuevaVariable: nuevaVariable
+    variablesJSON: JSON.stringify(listaVariables)
   });
 
   const response = await fetch(`${SAVE_WEB_APP_URL}?${queryParams.toString()}`);
   const result = await response.json();
 
   if (result.status === "error") {
-    throw new Error(result.message || "Error al agregar la variable.");
+    throw new Error(result.message || "Error al agregar las variables.");
   }
 
   return result;
@@ -87,7 +91,7 @@ async function saveRecordToSheets(data) {
     throw new Error("Falta configurar la URL de Apps Script");
   }
 
-  // Si no hay URL cargada, primero crea la copia
+  // Si no hay URL cargada, primero crea la copia de la plantilla
   if (!data.sheetUrl) {
     const copiaResult = await createSheetCopy();
     data.sheetUrl = copiaResult.sheetUrl;

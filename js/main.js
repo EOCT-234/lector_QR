@@ -1,27 +1,36 @@
+// Variable global para controlar lecturas duplicadas consecutivas del QR
 let isProcessing = false;
 
 document.addEventListener("DOMContentLoaded", () => {
-  // Inicialización de pestañas
+  // 1. Inicialización de navegación por pestañas
   initTabs();
 
-  // Escáner QR
+  // 2. Inicializar escáner QR
   if (typeof initQrScanner === "function") {
     initQrScanner(handleQrScanned);
   }
 
-  // Evento del botón CARGAR / CREAR HOJA en Inicio
+  // 3. Evento para el autogrow (auto-ampliación) del textarea de variables
+  const textareaVars = document.getElementById("lista-variables-textarea");
+  if (textareaVars) {
+    textareaVars.addEventListener("input", function() {
+      this.style.height = "auto";
+      this.style.height = (this.scrollHeight) + "px";
+    });
+  }
+
+  // 4. Eventos de la pestaña 'Inicio'
   const btnCrearHoja = document.getElementById("btn-crear-hoja");
   if (btnCrearHoja) {
     btnCrearHoja.addEventListener("click", handleCrearHojaInicio);
   }
 
-  // Evento del botón AGREGAR Variable en Inicio
-  const btnAgregarVar = document.getElementById("btn-agregar-var");
-  if (btnAgregarVar) {
-    btnAgregarVar.addEventListener("click", handleAgregarVariable);
+  const btnAgregarLista = document.getElementById("btn-agregar-variables-lista");
+  if (btnAgregarLista) {
+    btnAgregarLista.addEventListener("click", handleAgregarListaVariables);
   }
 
-  // Eventos de la pestaña Google Sheets
+  // 5. Eventos de la pestaña 'Google Sheets'
   const btnCargar = document.getElementById("btn-cargar");
   if (btnCargar) btnCargar.addEventListener("click", handleCargarVariables);
 
@@ -34,12 +43,13 @@ document.addEventListener("DOMContentLoaded", () => {
   const modalConfirmBtn = document.getElementById("modal-confirm-btn");
   if (modalConfirmBtn) modalConfirmBtn.addEventListener("click", confirmarGuardadoConUrl);
 
+  // 6. Evento del botón Copiar Texto del QR
   const copyBtn = document.getElementById("copy-btn");
   if (copyBtn) copyBtn.addEventListener("click", copyToClipboard);
 });
 
 /**
- * Control de pestañas
+ * Control de navegación entre pestañas de la interfaz
  */
 function initTabs() {
   const tabButtons = document.querySelectorAll(".tab-btn");
@@ -62,7 +72,7 @@ function initTabs() {
         targetContent.classList.add("active");
       }
 
-      // Gestión de cámara
+      // Gestión eficiente de la cámara según la pestaña activa
       if (targetId === "qr-tab") {
         if (typeof initQrScanner === "function") {
           initQrScanner(handleQrScanned);
@@ -117,40 +127,73 @@ async function handleCrearHojaInicio() {
 }
 
 /**
- * Agrega una nueva variable a la pestaña 'descriptores'
+ * Procesa la lista multilínea de variables y las guarda en la hoja 'descriptores'
  */
-async function handleAgregarVariable() {
+async function handleAgregarListaVariables() {
   const statusInicio = document.getElementById("status-inicio");
   const nuevoEnlaceInput = document.getElementById("nuevo-enlace-input");
-  const nuevaVarInput = document.getElementById("nueva-variable-input");
+  const textareaVars = document.getElementById("lista-variables-textarea");
+  const btnAgregarLista = document.getElementById("btn-agregar-variables-lista");
 
   const sheetUrl = nuevoEnlaceInput ? nuevoEnlaceInput.value.trim() : "";
-  const nuevaVar = nuevaVarInput ? nuevaVarInput.value.trim() : "";
+  const contenidoTexto = textareaVars ? textareaVars.value.trim() : "";
 
   if (!sheetUrl) {
     alert("Primero debes hacer clic en 'CARGAR / CREAR HOJA DE TRABAJO'.");
     return;
   }
 
-  if (!nuevaVar) {
-    alert("Por favor escribe el nombre de la nueva variable.");
+  if (!contenidoTexto) {
+    alert("Por favor escribe las variables en el recuadro (una por línea).");
     return;
   }
 
-  if (statusInicio) statusInicio.textContent = "Guardando variable en Google Sheets...";
+  // Convierte las líneas ingresadas en una lista limpia de cadenas
+  const lineasVariables = contenidoTexto
+    .split("\n")
+    .map(linea => linea.trim())
+    .filter(linea => linea.length > 0);
+
+  if (lineasVariables.length === 0) {
+    alert("Ingresa variables válidas.");
+    return;
+  }
+
+  if (btnAgregarLista) {
+    btnAgregarLista.disabled = true;
+    btnAgregarLista.textContent = "GUARDANDO VARIABLES...";
+  }
+
+  if (statusInicio) statusInicio.textContent = `Enviando ${lineasVariables.length} variable(s) a Google Sheets...`;
 
   try {
-    await addVariableToSheet(sheetUrl, nuevaVar);
-    if (statusInicio) statusInicio.textContent = `¡Variable "${nuevaVar}" guardada con éxito!`;
-    if (nuevaVarInput) nuevaVarInput.value = "";
+    await addMultipleVariablesToSheet(sheetUrl, lineasVariables);
+    
+    if (statusInicio) {
+      statusInicio.textContent = `¡Éxito! Se agregaron ${lineasVariables.length} variable(s) a la hoja 'descriptores'.`;
+    }
+    
+    // Limpia el área de texto tras guardar exitosamente
+    if (textareaVars) {
+      textareaVars.value = "";
+      textareaVars.style.height = "auto";
+    }
+
   } catch (error) {
-    console.error("Error al guardar la variable:", error);
-    if (statusInicio) statusInicio.textContent = "Error al agregar la variable.";
+    console.error("Error al registrar lista de variables:", error);
+    if (statusInicio) {
+      statusInicio.textContent = "Error: " + (error.message || "No se pudieron agregar las variables.");
+    }
+  } finally {
+    if (btnAgregarLista) {
+      btnAgregarLista.disabled = false;
+      btnAgregarLista.textContent = "CARGAR VARIABLES A LA HOJA";
+    }
   }
 }
 
 /**
- * Carga las variables en el select desplegable
+ * Carga las variables de la pestaña 'descriptores' al select de la pestaña Google Sheets
  */
 async function handleCargarVariables() {
   const urlInput = document.getElementById("sheet-url-input");
@@ -185,7 +228,7 @@ async function handleCargarVariables() {
 }
 
 /**
- * Manejo de QR escaneado
+ * Recibe el texto leído del escáner QR
  */
 function handleQrScanned(qrText) {
   if (isProcessing) return;
@@ -202,6 +245,9 @@ function handleQrScanned(qrText) {
   }, 2500);
 }
 
+/**
+ * Copia el texto escaneado al portapapeles
+ */
 function copyToClipboard() {
   const qrResultText = document.getElementById("qr-result-text");
   const copyBtn = document.getElementById("copy-btn");
@@ -221,6 +267,9 @@ function copyToClipboard() {
     });
 }
 
+/**
+ * Ventana Modal para confirmación de la URL de destino
+ */
 function abrirModalUrl() {
   const modal = document.getElementById("modal-url");
   const modalInput = document.getElementById("modal-url-input");
@@ -235,6 +284,9 @@ function cerrarModalUrl() {
   if (modal) modal.classList.add("hidden");
 }
 
+/**
+ * Confirma el envío de los 4 datos (Accesión, Variable, Repetición y Medición)
+ */
 async function confirmarGuardadoConUrl() {
   const modalInput = document.getElementById("modal-url-input");
   const statusCarga = document.getElementById("status-carga");
