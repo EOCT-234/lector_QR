@@ -3,7 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Escáner QR y Registro de Evaluaciones</title>
+  <title>Lector QR y Registro de Evaluaciones</title>
+  
+  <!-- Librería externa para la lectura de códigos QR con cámara -->
+  <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+  
+  <!-- Estilos principales -->
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -11,40 +16,72 @@
   <div class="container">
     <!-- Navegación por Pestañas -->
     <div class="tabs-header">
-      <button class="tab-btn active" data-tab="qr-tab">Lector QR</button>
+      <button class="tab-btn active" data-tab="inicio-tab">Inicio</button>
+      <button class="tab-btn" data-tab="qr-tab">Lector QR</button>
       <button class="tab-btn" data-tab="sheets-tab">Google Sheets</button>
     </div>
 
-    <!-- Pestaña 1: Lector QR -->
-    <div id="qr-tab" class="tab-content active">
-      <div class="qr-container">
-        <div id="reader"></div>
-        <div class="form-group">
-          <label for="qr-result-text">Texto Escaneado:</label>
-          <input type="text" id="qr-result-text" readonly placeholder="El código QR aparecerá aquí...">
+    <!-- Pestaña 1: Inicio -->
+    <div id="inicio-tab" class="tab-content active">
+      <div class="form-group">
+        <button id="btn-crear-hoja" class="btn btn-full">CARGAR / CREAR HOJA DE TRABAJO</button>
+      </div>
+
+      <!-- Muestra el nuevo enlace generado de Google Sheets -->
+      <div class="form-group">
+        <label for="nuevo-enlace-input">Nuevo Enlace Generado:</label>
+        <input type="text" id="nuevo-enlace-input" readonly placeholder="El enlace aparecerá aquí al hacer clic en CARGAR...">
+      </div>
+
+      <hr style="margin: 20px 0; border: 0; border-top: 1px solid #ccc;">
+
+      <!-- Recuadro para agregar nuevas variables a la hoja 'descriptores' -->
+      <div class="form-group">
+        <label for="nueva-variable-input">Agregar Nueva Variable:</label>
+        <div class="input-with-button" style="display: flex; gap: 8px;">
+          <input type="text" id="nueva-variable-input" placeholder="Ej: Diámetro de fruto">
+          <button id="btn-agregar-var" class="btn">AGREGAR</button>
         </div>
-        <button id="copy-btn" class="btn btn-secondary btn-full">COPIAR TEXTO</button>
+      </div>
+      
+      <div id="status-inicio" class="status-text"></div>
+    </div>
+
+    <!-- Pestaña 2: Lector QR -->
+    <div id="qr-tab" class="tab-content hidden">
+      <div class="qr-container">
+        <!-- Contenedor del visor de cámara de html5-qrcode -->
+        <div id="reader"></div>
+      </div>
+
+      <div class="form-group">
+        <label for="qr-result-text">Resultado del QR Escaneado:</label>
+        <input type="text" id="qr-result-text" readonly placeholder="Esperando escaneo de código QR...">
+      </div>
+
+      <div class="form-group">
+        <button id="copy-btn" class="btn btn-full">COPIAR TEXTO</button>
       </div>
     </div>
 
-    <!-- Pestaña 2: Google Sheets / Registro de Datos -->
+    <!-- Pestaña 3: Registro en Google Sheets -->
     <div id="sheets-tab" class="tab-content hidden">
-      
       <div class="form-group">
-        <label for="sheet-url-input">Enlace de Google Sheets (Descriptores):</label>
-        <div class="input-with-button">
-          <input type="text" id="sheet-url-input" placeholder="https://docs.google.com/spreadsheets/d/...">
-          <button id="btn-cargar" class="btn">CARGAR</button>
-        </div>
+        <label for="sheet-url-input">URL de Google Sheets:</label>
+        <input type="text" id="sheet-url-input" placeholder="Ingresa la URL del documento o usa el enlace generado en Inicio">
+      </div>
+
+      <div class="form-group">
+        <button id="btn-cargar" class="btn btn-full">CARGAR VARIABLES</button>
       </div>
 
       <div class="form-group">
         <label for="accesion-input">Accesión / Código QR:</label>
-        <input type="text" id="accesion-input" placeholder="Accesión obtenida del QR">
+        <input type="text" id="accesion-input" placeholder="Accesión o texto capturado del QR">
       </div>
 
       <div class="form-group">
-        <label for="select-variable">Variable:</label>
+        <label for="select-variable">Variable a Evaluar:</label>
         <select id="select-variable">
           <option value="">---------</option>
         </select>
@@ -60,30 +97,30 @@
         <input type="text" id="val-medicion" placeholder="Ej: 15.5">
       </div>
 
-      <button id="btn-guardar" class="btn btn-full">GUARDAR</button>
-      <div id="status-carga" class="status-text"></div>
+      <div class="form-group">
+        <button id="btn-guardar" class="btn btn-full btn-success">GUARDAR REGISTRO</button>
+      </div>
 
+      <div id="status-carga" class="status-text"></div>
     </div>
   </div>
 
-  <!-- Modal para ingresar el enlace de Google Sheets al presionar GUARDAR -->
+  <!-- Modal emergente para confirmación de URL al guardar -->
   <div id="modal-url" class="modal hidden">
     <div class="modal-content">
-      <h3>Ingresar Google Sheets</h3>
-      <p>Pega el enlace del libro de Google Sheets donde deseas crear la pestaña <strong>registro</strong> y guardar los datos:</p>
-      <input type="text" id="modal-url-input" placeholder="https://docs.google.com/spreadsheets/d/..." />
-      <div class="modal-actions">
-        <button id="modal-cancel-btn" class="btn btn-secondary">Cancelar</button>
-        <button id="modal-confirm-btn" class="btn">Confirmar y Crear Hoja</button>
+      <h3>Confirmar URL de Google Sheets</h3>
+      <p>Asegúrate de que la URL de destino sea la correcta:</p>
+      <input type="text" id="modal-url-input" placeholder="Si está vacío, se creará una copia de la plantilla...">
+      <div class="modal-buttons">
+        <button id="modal-cancel-btn" class="btn btn-danger">Cancelar</button>
+        <button id="modal-confirm-btn" class="btn btn-success">Confirmar y Guardar</button>
       </div>
     </div>
   </div>
 
-  <!-- Carga de Librerías y Scripts -->
-  <script src="https://unpkg.com/html5-qrcode"></script>
-  <script src="js/sheets.js"></script>
+  <!-- Scripts JavaScript del Proyecto -->
   <script src="js/qrScanner.js"></script>
+  <script src="js/sheets.js"></script>
   <script src="js/main.js"></script>
-
 </body>
 </html>
