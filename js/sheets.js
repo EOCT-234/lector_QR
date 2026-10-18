@@ -1,67 +1,84 @@
 // URL desplegada de Google Apps Script
 const SAVE_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbx4739QWxga8PsjGV7S0day0Xi4V7WPg9_p17gbzubTGY1BwGXLoe-0FzOkj6fOD7gY/exec";
 
-
 /**
- * Función auxiliar para realizar peticiones GET usando JSONP (evita bloqueos de CORS en navegadores)
+ * Función helper para realizar peticiones mediante JSONP (evita bloqueos de CORS)
  */
-
-
-function fetchJSONP(url) {
+function callAppsScriptJSONP(paramsObj) {
   return new Promise((resolve, reject) => {
-    const callbackName = 'jsonp_cb_' + Math.round(100000 * Math.random());
+    const callbackName = 'cb_' + Math.round(1000000 * Math.random());
     const script = document.createElement('script');
 
-    // Manejador de respuesta global
+    // Callback global de respuesta
     window[callbackName] = function(data) {
       delete window[callbackName];
-      document.body.removeChild(script);
+      if (document.body.contains(script)) {
+        document.body.removeChild(script);
+      }
+      
       if (data && data.status === "error") {
-        reject(new Error(data.message || "Error en la petición a Apps Script"));
+        reject(new Error(data.message || "Error devuelto por Google Apps Script"));
       } else {
         resolve(data);
       }
     };
 
-    // Manejo de errores de red
+    // Manejo de errores de red o fallo de conexión
     script.onerror = function() {
       delete window[callbackName];
       if (document.body.contains(script)) {
         document.body.removeChild(script);
       }
-      reject(new Error("No se pudo conectar con Google Apps Script. Revisa los permisos de despliegue."));
+      reject(new Error("No se pudo conectar con Google Apps Script. Revisa la URL y los permisos de despliegue."));
     };
 
-    const separator = url.includes('?') ? '&' : '?';
-    script.src = `${url}${separator}callback=${callbackName}`;
+    const urlParams = new URLSearchParams(paramsObj);
+    urlParams.append("callback", callbackName);
+
+    script.src = `${SAVE_WEB_APP_URL}?${urlParams.toString()}`;
     document.body.appendChild(script);
   });
 }
 
 /**
- * Solicita a Apps Script la clonación de la plantilla original
+ * Solicita la creación de la copia de la plantilla y retorna la URL del nuevo libro
  */
 async function createSheetCopy() {
   if (!SAVE_WEB_APP_URL) {
     throw new Error("Falta configurar la URL de Apps Script.");
   }
 
-  const requestUrl = `${SAVE_WEB_APP_URL}?action=crear_copia`;
-  return await fetchJSONP(requestUrl);
+  const result = await callAppsScriptJSONP({ action: "crear_copia" });
+
+  if (result && (result.sheetUrl || result.url)) {
+    const urlFinal = result.sheetUrl || result.url;
+
+    // Autocompleta la URL de la hoja en la pestaña Google Sheets
+    const sheetUrlInput = document.getElementById("sheet-url");
+    if (sheetUrlInput) {
+      sheetUrlInput.value = urlFinal;
+    }
+
+    return { status: "success", sheetUrl: urlFinal };
+  } else {
+    throw new Error("No se pudo obtener la URL de la hoja creada.");
+  }
 }
 
 /**
- * Obtiene la lista de variables de la pestaña 'descriptores'
+ * Carga las variables de la pestaña 'descriptores'
  */
 async function fetchDescriptorsVariables(sheetUrl) {
-  const targetUrl = sheetUrl ? sheetUrl.trim() : "";
-  const requestUrl = `${SAVE_WEB_APP_URL}?sheetUrl=${encodeURIComponent(targetUrl)}`;
-  const result = await fetchJSONP(requestUrl);
+  if (!SAVE_WEB_APP_URL) {
+    throw new Error("Falta configurar la URL de Apps Script.");
+  }
+
+  const result = await callAppsScriptJSONP({ sheetUrl: sheetUrl ? sheetUrl.trim() : "" });
   return result.variables || [];
 }
 
 /**
- * Envía una lista de múltiples variables a la pestaña 'descriptores'
+ * Envía una lista masiva de variables a la pestaña 'descriptores'
  */
 async function addMultipleVariablesToSheet(sheetUrl, listaVariables) {
   if (!sheetUrl) {
@@ -72,21 +89,19 @@ async function addMultipleVariablesToSheet(sheetUrl, listaVariables) {
     throw new Error("Escribe al menos una variable en el cuadro.");
   }
 
-  const queryParams = new URLSearchParams({
+  return await callAppsScriptJSONP({
     action: "agregar_variables_lista",
-    sheetUrl: sheetUrl,
+    sheetUrl: sheetUrl.trim(),
     variablesJSON: JSON.stringify(listaVariables)
   });
-
-  return await fetchJSONP(`${SAVE_WEB_APP_URL}?${queryParams.toString()}`);
 }
 
 /**
- * Envía la fila con los 4 datos (Accesión, Variable, Repetición, Medición) por POST
+ * Guarda los 4 campos (Accesión, Variable, Repetición, Medición) en la pestaña 'registro'
  */
 async function saveRecordToSheets(data) {
   if (!SAVE_WEB_APP_URL) {
-    throw new Error("Falta configurar la URL de Apps Script");
+    throw new Error("Falta configurar la URL de Apps Script.");
   }
 
   if (!data.sheetUrl) {
@@ -95,6 +110,7 @@ async function saveRecordToSheets(data) {
   }
 
   const payload = {
+    action: "guardar_registro",
     sheetUrl: data.sheetUrl,
     accesion: data.accesion || "",
     variable: data.variable || "",
