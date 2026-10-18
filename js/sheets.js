@@ -1,5 +1,5 @@
 // URL desplegada de Google Apps Script
-const SAVE_WEB_APP_URL = "https://docs.google.com/spreadsheets/d/1Jufv2cunUgPpIKFADwijAQZ4XEN7e_XWztXH5hYypoY/edit?usp=sharing";
+const SAVE_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbx4739QWxga8PsjGV7S0day0Xi4V7WPg9_p17gbzubTGY1BwGXLoe-0FzOkj6fOD7gY/exec";
 
 /**
  * Función auxiliar para realizar peticiones GET usando JSONP (evita bloqueos de CORS en navegadores)
