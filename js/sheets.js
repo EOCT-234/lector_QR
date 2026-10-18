@@ -1,32 +1,21 @@
-// URL desplegada de Google Apps Script (Corregido 'https' y actualizado a tu nueva URL)
+// js/sheets.js
 const SAVE_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwI_LzIVPXcrt6yKJguR5t81yudU_3yiFW_78RqAentwjqa449nddvsxda-3teeHieD5Q/exec";
 
 /**
- * Obtiene la columna 'variable' de la pestaña 'descriptores' directamente vía Apps Script o CSV
+ * Obtiene la lista de variables de la pestaña 'descriptores'
  */
 async function fetchDescriptorsVariables(sheetUrl) {
-  // Si no se proporciona un sheetUrl, la función llamará a Apps Script para leer la plantilla por defecto
   const targetUrl = sheetUrl ? sheetUrl.trim() : "";
   const requestUrl = `${SAVE_WEB_APP_URL}?sheetUrl=${encodeURIComponent(targetUrl)}`;
 
   try {
-    const response = await fetch(requestUrl, {
-      method: "GET",
-      redirect: "follow"
-    });
-
-    if (!response.ok) {
-      throw new Error("No se pudo conectar con el servicio de Google Apps Script.");
-    }
+    const response = await fetch(requestUrl, { method: "GET", redirect: "follow" });
+    if (!response.ok) throw new Error("Error al conectar con Google Apps Script.");
 
     const result = await response.json();
-
-    if (result.status === "error") {
-      throw new Error(result.message || "Error al leer la hoja de variables.");
-    }
+    if (result.status === "error") throw new Error(result.message || "Error al cargar variables.");
 
     return result.variables || [];
-
   } catch (error) {
     console.error("Error al obtener variables:", error);
     throw error;
@@ -34,37 +23,48 @@ async function fetchDescriptorsVariables(sheetUrl) {
 }
 
 /**
- * Envía todos los datos (copia, variables, accesión, variable, repetición y medición) a Apps Script
+ * Envía exclusivamente: Accesión, Variable, Repetición y Medición
  */
 async function saveRecordToSheets(data) {
   if (!SAVE_WEB_APP_URL) {
-    throw new Error("Falta configurar la URL de Apps Script en SAVE_WEB_APP_URL");
+    throw new Error("Falta configurar la URL de Apps Script");
   }
 
-  // Prepara el paquete completo de datos en JSON
+  // 1. Si no hay URL cargada, duplica la plantilla en Drive y guarda los 4 datos
+  if (!data.sheetUrl) {
+    const queryParams = new URLSearchParams({
+      action: "crear_copia",
+      accesion: data.accesion || "",
+      variable: data.variable || "",
+      repeticion: data.repeticion || "",
+      medicion: data.medicion || ""
+    });
+
+    const response = await fetch(`${SAVE_WEB_APP_URL}?${queryParams.toString()}`);
+    const result = await response.json();
+
+    if (result.status === "error") {
+      throw new Error(result.message || "Error al clonar la plantilla");
+    }
+
+    return result; // Retorna { status: 'success', sheetUrl: '...' }
+  }
+
+  // 2. Si la URL ya existe, guarda únicamente la fila por POST
   const payload = {
-    nuevoNombre: data.nuevoNombre || "",
-    variablesManuales: data.variablesManuales || [],
-    sheetUrl: data.sheetUrl || "",
+    sheetUrl: data.sheetUrl,
     accesion: data.accesion || "",
     variable: data.variable || "",
     repeticion: data.repeticion || "",
     medicion: data.medicion || ""
   };
 
-  try {
-    const response = await fetch(SAVE_WEB_APP_URL, {
-      method: "POST",
-      mode: "no-cors", // Requerido para evitar bloqueos CORS en peticiones cruzadas
-      headers: {
-        "Content-Type": "text/plain;charset=utf-8"
-      },
-      body: JSON.stringify(payload)
-    });
+  await fetch(SAVE_WEB_APP_URL, {
+    method: "POST",
+    mode: "no-cors",
+    headers: { "Content-Type": "text/plain;charset=utf-8" },
+    body: JSON.stringify(payload)
+  });
 
-    return { status: "success" };
-  } catch (error) {
-    console.error("Error en la solicitud POST:", error);
-    throw new Error("No se pudo enviar la información a Google Sheets.");
-  }
+  return { status: "success", sheetUrl: data.sheetUrl };
 }
