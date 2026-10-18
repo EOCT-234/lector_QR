@@ -3,131 +3,97 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Lector QR y Registro de Evaluaciones</title>
-  
-  <!-- Librería externa para la lectura de códigos QR con cámara -->
-  <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
-  
-  <!-- Estilos principales -->
-  <link rel="stylesheet" href="style.css">
+  <title>Evaluación Agrícola</title>
+  <link rel="stylesheet" href="css/style.css">
+  <!-- Librería para lectura de códigos QR -->
+  <script src="https://unpkg.com/html5-qrcode"></script>
 </head>
 <body>
 
   <div class="container">
-    <!-- Navegación por Pestañas -->
-    <div class="tabs-header">
-      <button class="tab-btn active" data-tab="inicio-tab">Inicio</button>
-      <button class="tab-btn" data-tab="qr-tab">Lector QR</button>
-      <button class="tab-btn" data-tab="sheets-tab">Google Sheets</button>
-    </div>
+    <!-- Navegación por pestañas -->
+    <nav class="tabs-nav">
+      <button class="tab-button active" data-tab="inicio-tab">Inicio</button>
+      <button class="tab-button" data-tab="qr-tab">Lector QR</button>
+      <button class="tab-button" data-tab="sheets-tab">Google Sheets</button>
+    </nav>
 
     <!-- Pestaña 1: Inicio -->
-<div id="inicio-tab" class="tab-content active">
-  <div class="form-group">
-    <button id="btn-crear-hoja" class="btn btn-full">CARGAR / CREAR HOJA DE TRABAJO</button>
-  </div>
+    <div id="inicio-tab" class="tab-content active">
+      <button id="btn-crear-hoja" class="btn-primary">CREAR HOJA DE TRABAJO</button>
 
-  <!-- Muestra el nuevo enlace generado -->
-  <div class="form-group">
-    <label for="nuevo-enlace-input">Nuevo Enlace Generado:</label>
-    <input type="text" id="nuevo-enlace-input" readonly placeholder="El enlace aparecerá aquí al hacer clic en CARGAR...">
-  </div>
+      <div class="form-group" style="margin-top: 15px;">
+        <label for="nuevo-enlace">NUEVO ENLACE:</label>
+        <input type="text" id="nuevo-enlace" readonly placeholder="El enlace aparecerá aquí al hacer clic en CREAR HOJA DE TRABAJO..." />
+        <button id="btn-copiar-enlace" class="btn-secondary" style="margin-top: 8px; width: 100%;">COPIAR ENLACE</button>
+      </div>
 
-  <hr style="margin: 20px 0; border: 0; border-top: 1px solid #ccc;">
+      <hr style="margin: 20px 0; border: 0; border-top: 1px solid #ccc;" />
 
-  <!-- Recuadro para múltiples variables -->
-  <div class="form-group">
-    <label for="lista-variables-textarea">Agregar Lista de Variables (una por línea, hasta 35 o más):</label>
-    <textarea 
-      id="lista-variables-textarea" 
-      rows="5" 
-      placeholder="Ejemplo:&#10;Altura de planta&#10;Diámetro de tallo&#10;Número de frutos&#10;Peso fresco"
-      style="width: 100%; resize: vertical; min-height: 120px; font-family: inherit; padding: 10px; border: 1px solid #ccc; border-radius: 4px;"
-    ></textarea>
-  </div>
+      <div class="form-group">
+        <label for="variables-textarea">AGREGAR VARIABLES:</label>
+        <textarea id="variables-textarea" rows="5" placeholder="Ejemplo:&#10;Altura de planta&#10;Diámetro de tallo&#10;Número de frutos&#10;Peso fresco"></textarea>
+      </div>
 
-  <!-- Botón para registrar la lista completa en 'descriptores' -->
-  <div class="form-group">
-    <button id="btn-agregar-variables-lista" class="btn btn-full btn-success">CARGAR VARIABLES A LA HOJA</button>
-  </div>
+      <button id="btn-subir-variables" class="btn-primary" style="margin-top: 10px;">SUBIR VARIABLES</button>
 
-  <div id="status-inicio" class="status-text"></div>
-</div>
+      <div id="inicio-status" class="status-message" style="margin-top: 15px;"></div>
+    </div>
 
     <!-- Pestaña 2: Lector QR -->
-    <div id="qr-tab" class="tab-content hidden">
-      <div class="qr-container">
-        <!-- Contenedor del visor de cámara de html5-qrcode -->
-        <div id="reader"></div>
+    <div id="qr-tab" class="tab-content">
+      <h2>Escanear Código QR</h2>
+      <div id="qr-reader" style="width: 100%; max-width: 500px; margin: 0 auto;"></div>
+      <div class="form-group" style="margin-top: 15px;">
+        <label for="qr-result">Resultado del Escaneo (Accesión):</label>
+        <input type="text" id="qr-result" readonly placeholder="El código escaneado aparecerá aquí..." />
       </div>
-
-      <div class="form-group">
-        <label for="qr-result-text">Resultado del QR Escaneado:</label>
-        <input type="text" id="qr-result-text" readonly placeholder="Esperando escaneo de código QR...">
-      </div>
-
-      <div class="form-group">
-        <button id="copy-btn" class="btn btn-full">COPIAR TEXTO</button>
-      </div>
+      <div id="qr-status" class="status-message"></div>
     </div>
 
-    <!-- Pestaña 3: Registro en Google Sheets -->
-    <div id="sheets-tab" class="tab-content hidden">
-      <div class="form-group">
-        <label for="sheet-url-input">URL de Google Sheets:</label>
-        <input type="text" id="sheet-url-input" placeholder="Ingresa la URL del documento o usa el enlace generado en Inicio">
-      </div>
+    <!-- Pestaña 3: Google Sheets -->
+    <div id="sheets-tab" class="tab-content">
+      <h2>Registro de Evaluación</h2>
+      
+      <form id="evaluation-form">
+        <div class="form-group">
+          <label for="sheet-url">URL de Google Sheets:</label>
+          <input type="url" id="sheet-url" placeholder="https://docs.google.com/spreadsheets/d/..." required />
+          <button type="button" id="btn-cargar-variables" class="btn-secondary" style="margin-top: 8px;">CARGAR VARIABLES</button>
+        </div>
 
-      <div class="form-group">
-        <button id="btn-cargar" class="btn btn-full">CARGAR VARIABLES</button>
-      </div>
+        <div class="form-group">
+          <label for="accesion-input">Accesión:</label>
+          <input type="text" id="accesion-input" placeholder="Accesión o ID del QR" required />
+        </div>
 
-      <div class="form-group">
-        <label for="accesion-input">Accesión / Código QR:</label>
-        <input type="text" id="accesion-input" placeholder="Accesión o texto capturado del QR">
-      </div>
+        <div class="form-group">
+          <label for="variable-select">Variable:</label>
+          <select id="variable-select" required>
+            <option value="">-- Primero carga las variables --</option>
+          </select>
+        </div>
 
-      <div class="form-group">
-        <label for="select-variable">Variable a Evaluar:</label>
-        <select id="select-variable">
-          <option value="">---------</option>
-        </select>
-      </div>
+        <div class="form-group">
+          <label for="repeticion-input">Repetición:</label>
+          <input type="number" id="repeticion-input" min="1" value="1" required />
+        </div>
 
-      <div class="form-group">
-        <label for="val-repeticion">Repetición:</label>
-        <input type="number" id="val-repeticion" placeholder="Ej: 1">
-      </div>
+        <div class="form-group">
+          <label for="medicion-input">Medición:</label>
+          <input type="text" id="medicion-input" placeholder="Ingrese el valor medido" required />
+        </div>
 
-      <div class="form-group">
-        <label for="val-medicion">Medición:</label>
-        <input type="text" id="val-medicion" placeholder="Ej: 15.5">
-      </div>
+        <button type="submit" id="btn-guardar-registro" class="btn-primary">GUARDAR REGISTRO</button>
+      </form>
 
-      <div class="form-group">
-        <button id="btn-guardar" class="btn btn-full btn-success">GUARDAR REGISTRO</button>
-      </div>
-
-      <div id="status-carga" class="status-text"></div>
+      <div id="sheets-status" class="status-message" style="margin-top: 15px;"></div>
     </div>
   </div>
 
-  <!-- Modal emergente para confirmación de URL al guardar -->
-  <div id="modal-url" class="modal hidden">
-    <div class="modal-content">
-      <h3>Confirmar URL de Google Sheets</h3>
-      <p>Asegúrate de que la URL de destino sea la correcta:</p>
-      <input type="text" id="modal-url-input" placeholder="Si está vacío, se creará una copia de la plantilla...">
-      <div class="modal-buttons">
-        <button id="modal-cancel-btn" class="btn btn-danger">Cancelar</button>
-        <button id="modal-confirm-btn" class="btn btn-success">Confirmar y Guardar</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Scripts JavaScript del Proyecto -->
-  <script src="js/qrScanner.js"></script>
+  <!-- Scripts JS del proyecto -->
   <script src="js/sheets.js"></script>
+  <script src="js/qrScanner.js"></script>
   <script src="js/main.js"></script>
 </body>
 </html>
