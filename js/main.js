@@ -19,7 +19,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const tabContents = document.querySelectorAll(".tab-content");
 
   tabButtons.forEach((button) => {
-    button.addEventListener("click", () => {
+    button.addEventListener("click", async () => {
       const targetTab = button.getAttribute("data-tab");
 
       tabButtons.forEach((btn) => btn.classList.remove("active"));
@@ -29,6 +29,17 @@ document.addEventListener("DOMContentLoaded", () => {
       const activeContent = document.getElementById(targetTab);
       if (activeContent) {
         activeContent.classList.add("active");
+      }
+
+      // Control de encendido/apagado automático de la cámara según la pestaña activa
+      if (targetTab === "qr-tab") {
+        if (typeof startQRScanner === "function") {
+          startQRScanner();
+        }
+      } else {
+        if (typeof stopQRScanner === "function") {
+          await stopQRScanner();
+        }
       }
     });
   });
@@ -53,7 +64,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (result && result.sheetUrl) {
           inputNuevoEnlace.value = result.sheetUrl;
 
-          // Autocompleta también el campo en la pestaña de registro
+          // Autocompleta el campo en la pestaña Google Sheets
           if (sheetUrlInput) {
             sheetUrlInput.value = result.sheetUrl;
           }
@@ -113,7 +124,7 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
       }
 
-      // Convertir el texto multilinea a un arreglo limpiando espacios vacíos
+      // Convertir el texto multilinea a un arreglo limpiando líneas vacías
       const listaVariables = texto
         .split("\n")
         .map((v) => v.trim())
@@ -196,7 +207,7 @@ document.addEventListener("DOMContentLoaded", () => {
         sheetsStatus.textContent = "¡Registro guardado exitosamente!";
         sheetsStatus.className = "status-message success";
 
-        // Limpiar campos de medición para la siguiente entrada
+        // Limpiar el campo de medición para agilizar la siguiente captura
         document.getElementById("medicion-input").value = "";
       } catch (error) {
         sheetsStatus.textContent = "Error al guardar el registro: " + error.message;
