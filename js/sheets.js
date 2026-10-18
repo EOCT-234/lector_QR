@@ -1,9 +1,12 @@
 // URL desplegada de Google Apps Script
 const SAVE_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbx4739QWxga8PsjGV7S0day0Xi4V7WPg9_p17gbzubTGY1BwGXLoe-0FzOkj6fOD7gY/exec";
 
+
 /**
  * Función auxiliar para realizar peticiones GET usando JSONP (evita bloqueos de CORS en navegadores)
  */
+
+
 function fetchJSONP(url) {
   return new Promise((resolve, reject) => {
     const callbackName = 'jsonp_cb_' + Math.round(100000 * Math.random());
