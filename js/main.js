@@ -1,41 +1,45 @@
-// Variable global para evitar lecturas duplicadas consecutivas del QR
 let isProcessing = false;
 
 document.addEventListener("DOMContentLoaded", () => {
-  // 1. Limpiar campos de URL al iniciar para evitar mantener textos de sesiones anteriores
-  const urlInput = document.getElementById("sheet-url-input");
-  if (urlInput) urlInput.value = "";
+  // Inicialización de pestañas
+  initTabs();
 
-  // 2. Inicializar escáner QR
+  // Escáner QR
   if (typeof initQrScanner === "function") {
     initQrScanner(handleQrScanned);
   }
 
-  // 3. Configurar navegación entre pestañas (Lector QR / Google Sheets)
-  initTabs();
+  // Evento del botón CARGAR / CREAR HOJA en Inicio
+  const btnCrearHoja = document.getElementById("btn-crear-hoja");
+  if (btnCrearHoja) {
+    btnCrearHoja.addEventListener("click", handleCrearHojaInicio);
+  }
 
-  // 4. Asignación de eventos a los botones principales
-  const copyBtn = document.getElementById("copy-btn");
-  if (copyBtn) copyBtn.addEventListener("click", copyToClipboard);
+  // Evento del botón AGREGAR Variable en Inicio
+  const btnAgregarVar = document.getElementById("btn-agregar-var");
+  if (btnAgregarVar) {
+    btnAgregarVar.addEventListener("click", handleAgregarVariable);
+  }
 
+  // Eventos de la pestaña Google Sheets
   const btnCargar = document.getElementById("btn-cargar");
   if (btnCargar) btnCargar.addEventListener("click", handleCargarVariables);
 
-  // El botón GUARDAR abre la ventana modal de confirmación
   const btnGuardar = document.getElementById("btn-guardar");
   if (btnGuardar) btnGuardar.addEventListener("click", abrirModalUrl);
 
-  // Eventos de la ventana modal
   const modalCancelBtn = document.getElementById("modal-cancel-btn");
   if (modalCancelBtn) modalCancelBtn.addEventListener("click", cerrarModalUrl);
 
   const modalConfirmBtn = document.getElementById("modal-confirm-btn");
   if (modalConfirmBtn) modalConfirmBtn.addEventListener("click", confirmarGuardadoConUrl);
+
+  const copyBtn = document.getElementById("copy-btn");
+  if (copyBtn) copyBtn.addEventListener("click", copyToClipboard);
 });
 
 /**
- * Control de navegación entre pestañas de la interfaz
- * Detiene o reactiva la cámara según la pestaña visible
+ * Control de pestañas
  */
 function initTabs() {
   const tabButtons = document.querySelectorAll(".tab-btn");
@@ -43,14 +47,12 @@ function initTabs() {
 
   tabButtons.forEach((btn) => {
     btn.addEventListener("click", () => {
-      // Desactivar todas las pestañas y ocultar contenidos
       tabButtons.forEach((b) => b.classList.remove("active"));
       tabContents.forEach((content) => {
         content.classList.remove("active");
         content.classList.add("hidden");
       });
 
-      // Activar la pestaña seleccionada
       btn.classList.add("active");
       const targetId = btn.getAttribute("data-tab");
       const targetContent = document.getElementById(targetId);
@@ -60,7 +62,7 @@ function initTabs() {
         targetContent.classList.add("active");
       }
 
-      // Gestión eficiente de la cámara según la pestaña
+      // Gestión de cámara
       if (targetId === "qr-tab") {
         if (typeof initQrScanner === "function") {
           initQrScanner(handleQrScanned);
@@ -75,7 +77,80 @@ function initTabs() {
 }
 
 /**
- * Obtiene la lista de variables desde la pestaña 'descriptores'
+ * Genera la copia de la plantilla al hacer clic en CARGAR / CREAR HOJA DE TRABAJO
+ */
+async function handleCrearHojaInicio() {
+  const statusInicio = document.getElementById("status-inicio");
+  const nuevoEnlaceInput = document.getElementById("nuevo-enlace-input");
+  const sheetUrlInput = document.getElementById("sheet-url-input");
+  const btnCrearHoja = document.getElementById("btn-crear-hoja");
+
+  if (btnCrearHoja) {
+    btnCrearHoja.disabled = true;
+    btnCrearHoja.textContent = "GENERANDO COPIA...";
+  }
+
+  if (statusInicio) statusInicio.textContent = "Duplicando plantilla en Google Drive...";
+
+  try {
+    const response = await createSheetCopy();
+
+    if (response && response.sheetUrl) {
+      if (nuevoEnlaceInput) nuevoEnlaceInput.value = response.sheetUrl;
+      if (sheetUrlInput) sheetUrlInput.value = response.sheetUrl;
+      if (statusInicio) statusInicio.textContent = "¡Copia creada con éxito!";
+    } else {
+      throw new Error("No se recibió la URL del servidor.");
+    }
+
+  } catch (error) {
+    console.error("Error al crear hoja:", error);
+    if (statusInicio) {
+      statusInicio.textContent = "Error: " + (error.message || "No se pudo generar la copia");
+    }
+  } finally {
+    if (btnCrearHoja) {
+      btnCrearHoja.disabled = false;
+      btnCrearHoja.textContent = "CARGAR / CREAR HOJA DE TRABAJO";
+    }
+  }
+}
+
+/**
+ * Agrega una nueva variable a la pestaña 'descriptores'
+ */
+async function handleAgregarVariable() {
+  const statusInicio = document.getElementById("status-inicio");
+  const nuevoEnlaceInput = document.getElementById("nuevo-enlace-input");
+  const nuevaVarInput = document.getElementById("nueva-variable-input");
+
+  const sheetUrl = nuevoEnlaceInput ? nuevoEnlaceInput.value.trim() : "";
+  const nuevaVar = nuevaVarInput ? nuevaVarInput.value.trim() : "";
+
+  if (!sheetUrl) {
+    alert("Primero debes hacer clic en 'CARGAR / CREAR HOJA DE TRABAJO'.");
+    return;
+  }
+
+  if (!nuevaVar) {
+    alert("Por favor escribe el nombre de la nueva variable.");
+    return;
+  }
+
+  if (statusInicio) statusInicio.textContent = "Guardando variable en Google Sheets...";
+
+  try {
+    await addVariableToSheet(sheetUrl, nuevaVar);
+    if (statusInicio) statusInicio.textContent = `¡Variable "${nuevaVar}" guardada con éxito!`;
+    if (nuevaVarInput) nuevaVarInput.value = "";
+  } catch (error) {
+    console.error("Error al guardar la variable:", error);
+    if (statusInicio) statusInicio.textContent = "Error al agregar la variable.";
+  }
+}
+
+/**
+ * Carga las variables en el select desplegable
  */
 async function handleCargarVariables() {
   const urlInput = document.getElementById("sheet-url-input");
@@ -99,7 +174,7 @@ async function handleCargarVariables() {
       });
     }
 
-    if (statusCarga) statusCarga.textContent = "¡Carga exitosa!";
+    if (statusCarga) statusCarga.textContent = "¡Variables cargadas!";
 
   } catch (error) {
     console.error("Error al cargar variables:", error);
@@ -110,7 +185,7 @@ async function handleCargarVariables() {
 }
 
 /**
- * Recibe el resultado de la lectura del escáner QR
+ * Manejo de QR escaneado
  */
 function handleQrScanned(qrText) {
   if (isProcessing) return;
@@ -118,21 +193,15 @@ function handleQrScanned(qrText) {
 
   const qrResultText = document.getElementById("qr-result-text");
   const accesionInput = document.getElementById("accesion-input");
-  const copyBtn = document.getElementById("copy-btn");
 
   if (qrResultText) qrResultText.value = qrText;
   if (accesionInput) accesionInput.value = qrText;
-  if (copyBtn) copyBtn.textContent = "COPIAR TEXTO";
 
-  // Previene múltiples escaneos continuos en un intervalo muy corto
   setTimeout(() => {
     isProcessing = false;
   }, 2500);
 }
 
-/**
- * Copia el valor del texto escaneado al portapapeles
- */
 function copyToClipboard() {
   const qrResultText = document.getElementById("qr-result-text");
   const copyBtn = document.getElementById("copy-btn");
@@ -142,47 +211,30 @@ function copyToClipboard() {
   navigator.clipboard.writeText(qrResultText.value)
     .then(() => {
       if (copyBtn) copyBtn.textContent = "¡COPIADO!";
-      setTimeout(() => {
-        if (copyBtn) copyBtn.textContent = "COPIAR TEXTO";
-      }, 2000);
+      setTimeout(() => { if (copyBtn) copyBtn.textContent = "COPIAR TEXTO"; }, 2000);
     })
     .catch(() => {
-      // Fallback para navegadores antiguos
       qrResultText.select();
       document.execCommand("copy");
       if (copyBtn) copyBtn.textContent = "¡COPIADO!";
-      setTimeout(() => {
-        if (copyBtn) copyBtn.textContent = "COPIAR TEXTO";
-      }, 2000);
+      setTimeout(() => { if (copyBtn) copyBtn.textContent = "COPIAR TEXTO"; }, 2000);
     });
 }
 
-/**
- * Abre la ventana modal para solicitar o verificar la URL de Google Sheets
- */
 function abrirModalUrl() {
   const modal = document.getElementById("modal-url");
   const modalInput = document.getElementById("modal-url-input");
-  
-  // Precarga en la modal el enlace ingresado en el campo principal si existe
   const mainUrl = document.getElementById("sheet-url-input")?.value.trim();
-  if (modalInput) modalInput.value = mainUrl || "";
 
+  if (modalInput) modalInput.value = mainUrl || "";
   if (modal) modal.classList.remove("hidden");
 }
 
-/**
- * Cierra la ventana modal
- */
 function cerrarModalUrl() {
   const modal = document.getElementById("modal-url");
   if (modal) modal.classList.add("hidden");
 }
 
-/**
- * Procesa el envío de datos desde la ventana modal:
- * Registra únicamente Accesión, Variable, Repetición y Medición
- */
 async function confirmarGuardadoConUrl() {
   const modalInput = document.getElementById("modal-url-input");
   const statusCarga = document.getElementById("status-carga");
@@ -190,7 +242,6 @@ async function confirmarGuardadoConUrl() {
 
   const sheetUrlFinal = modalInput ? modalInput.value.trim() : "";
 
-  // Captura exacta de los 4 datos de la evaluación
   const accesion = document.getElementById("accesion-input")?.value.trim() || "";
   const variable = document.getElementById("select-variable")?.value.trim() || "";
   const repeticion = document.getElementById("val-repeticion")?.value.trim() || "";
@@ -214,7 +265,6 @@ async function confirmarGuardadoConUrl() {
       medicion: medicion
     });
 
-    // Si se clonó la plantilla, estampa la nueva URL en el campo principal
     if (response && response.sheetUrl && mainUrlInput) {
       mainUrlInput.value = response.sheetUrl;
     }
@@ -228,7 +278,7 @@ async function confirmarGuardadoConUrl() {
   } finally {
     if (btnGuardar) {
       btnGuardar.disabled = false;
-      btnGuardar.textContent = "GUARDAR";
+      btnGuardar.textContent = "GUARDAR REGISTRO";
     }
   }
 }
