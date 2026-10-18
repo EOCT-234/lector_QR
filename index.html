@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Evaluación Agrícola</title>
   <link rel="stylesheet" href="css/style.css">
-  <!-- Librería para lectura de códigos QR -->
   <script src="https://unpkg.com/html5-qrcode"></script>
 </head>
 <body>
@@ -24,18 +23,18 @@
 
       <div class="form-group" style="margin-top: 15px;">
         <label for="nuevo-enlace">NUEVO ENLACE:</label>
-        <input type="text" id="nuevo-enlace" readonly placeholder="El enlace aparecerá aquí al hacer clic en CREAR HOJA DE TRABAJO..." />
-        <button id="btn-copiar-enlace" class="btn-secondary" style="margin-top: 8px; width: 100%;">COPIAR ENLACE</button>
+        <input type="text" id="nuevo-enlace" readonly placeholder="El enlace aparecerá aquí..." />
+        <button id="btn-copiar-enlace" class="btn-secondary" style="margin-top: 8px;">COPIAR ENLACE</button>
       </div>
 
-      <hr style="margin: 20px 0; border: 0; border-top: 1px solid #ccc;" />
+      <hr style="margin: 20px 0; border: 0; border-top: 1px solid #eee;" />
 
       <div class="form-group">
         <label for="variables-textarea">AGREGAR VARIABLES:</label>
         <textarea id="variables-textarea" rows="5" placeholder="Ejemplo:&#10;Altura de planta&#10;Diámetro de tallo&#10;Número de frutos&#10;Peso fresco"></textarea>
       </div>
 
-      <button id="btn-subir-variables" class="btn-primary" style="margin-top: 10px;">SUBIR VARIABLES</button>
+      <button id="btn-subir-variables" class="btn-primary">SUBIR VARIABLES</button>
 
       <div id="inicio-status" class="status-message" style="margin-top: 15px;"></div>
     </div>
@@ -43,7 +42,7 @@
     <!-- Pestaña 2: Lector QR -->
     <div id="qr-tab" class="tab-content">
       <h2>Escanear Código QR</h2>
-      <div id="qr-reader" style="width: 100%; max-width: 500px; margin: 0 auto;"></div>
+      <div id="qr-reader" style="width: 100%; margin: 0 auto;"></div>
       <div class="form-group" style="margin-top: 15px;">
         <label for="qr-result">Resultado del Escaneo (Accesión):</label>
         <input type="text" id="qr-result" readonly placeholder="El código escaneado aparecerá aquí..." />
@@ -91,7 +90,6 @@
     </div>
   </div>
 
-  <!-- Scripts JS del proyecto -->
   <script src="js/sheets.js"></script>
   <script src="js/qrScanner.js"></script>
   <script src="js/main.js"></script>
