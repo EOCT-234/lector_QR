@@ -7,13 +7,12 @@
 
 html, body {
   height: 100%;
-  height: 100dvh; /* Alto dinámico real en celulares */
-  overflow: hidden; /* Evita que toda la pantalla se deslice */
+  height: 100dvh;
+  overflow: hidden;
   background-color: #f4f6f5;
   color: #333;
 }
 
-/* Estructura principal de 3 bloques (Header fijo + Centro scrollable + Footer fijo) */
 .app-shell {
   display: flex;
   flex-direction: column;
@@ -40,85 +39,184 @@ html, body {
   padding: 10px 14px 0 14px;
 }
 
-.app-info-bar {
+.brand-top {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding-bottom: 8px;
-  border-bottom: 1px solid #f0f0f0;
+  justify-content: center;
+  gap: 8px;
+  padding-bottom: 6px;
 }
 
 .app-logo {
-  width: 40px;
-  height: 40px;
+  width: 30px;
+  height: 30px;
   object-fit: contain;
-  border-radius: 8px;
-  flex-shrink: 0;
-}
-
-.app-text {
-  flex: 1;
-  min-width: 0;
+  border-radius: 6px;
 }
 
 .app-title {
-  font-size: 18px;
+  font-size: 19px;
   font-weight: 800;
   color: #2d7738;
-  line-height: 1.15;
+  letter-spacing: 0.3px;
 }
 
-.app-subtitle {
-  font-size: 11.5px;
-  color: #555;
-  margin-top: 2px;
-  line-height: 1.3;
-  white-space: normal; /* Permite saltar de línea sin recortarse */
-  overflow: visible;
-}
-
-.tabs-nav {
+/* Pestañas principales del encabezado: PanpaData | Datos */
+.main-nav {
   display: flex;
+  border-top: 1px solid #f0f0f0;
 }
 
-.tab-button {
+.main-tab-btn {
   flex: 1;
-  padding: 10px 4px;
+  padding: 10px 6px;
   background: transparent;
   border: none;
-  font-size: 13.5px;
-  font-weight: 700;
+  font-size: 14.5px;
+  font-weight: 800;
   color: #666;
   cursor: pointer;
   border-bottom: 3px solid transparent;
   transition: all 0.2s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
 }
 
-.tab-button.active {
+.main-tab-btn.active {
   color: #2d7738;
   border-bottom-color: #2d7738;
 }
 
 /* =========================================
-   2. ZONA CENTRAL CON SCROLL PROPIO
+   2. ÁREA CENTRAL DESPLAZABLE
    ========================================= */
 .main-scroll {
   flex: 1;
   overflow-y: auto;
-  -webkit-overflow-scrolling: touch; /* Scroll suave en iOS/Android */
-  padding: 14px 10px;
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
+  -webkit-overflow-scrolling: touch;
+  padding: 14px 10px 24px 10px;
+}
+
+.main-section {
+  display: none;
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+.main-section.active {
+  display: block;
 }
 
 .container {
   background: #ffffff;
   width: 100%;
-  max-width: 480px;
   padding: 20px;
   border-radius: 12px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+}
+
+/* Estilos de la vista de información (PanpaData) */
+.info-hero {
+  text-align: center;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #eee;
+}
+
+.hero-logo {
+  width: 72px;
+  height: 72px;
+  object-fit: contain;
+  margin-bottom: 8px;
+}
+
+.info-hero h2 {
+  font-size: 20px;
+  color: #2d7738;
+  margin-bottom: 4px;
+}
+
+.quechua-meaning {
+  font-size: 12.5px;
+  color: #2d7738;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+.info-lead {
+  font-size: 13.5px;
+  color: #555;
+  line-height: 1.45;
+}
+
+.info-steps {
+  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.step-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  background-color: #f8faf8;
+  padding: 12px;
+  border-radius: 8px;
+  border-left: 4px solid #2d7738;
+}
+
+.step-badge {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background-color: #2d7738;
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 2px;
+}
+
+.step-item h3 {
+  font-size: 14px;
+  color: #1b4332;
+  margin-bottom: 3px;
+}
+
+.step-item p {
+  font-size: 12.5px;
+  color: #555;
+  line-height: 1.4;
+}
+
+/* Sub-pestañas internas dentro de la sección Datos */
+.tabs-nav {
+  display: flex;
+  border-bottom: 2px solid #e0e0e0;
+  margin-bottom: 18px;
+}
+
+.tab-button {
+  flex: 1;
+  padding: 10px 4px;
+  background: none;
+  border: none;
+  font-size: 13.5px;
+  font-weight: bold;
+  color: #666;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -2px;
+}
+
+.tab-button.active {
+  color: #2d7738;
+  border-bottom-color: #2d7738;
 }
 
 .tab-content {
@@ -208,7 +306,7 @@ textarea {
 .status-message.error { color: #c62828; }
 
 /* =========================================
-   3. PIE DE PÁGINA FIJO INFERIOR (APOYO)
+   3. PIE DE PÁGINA FIJO (SOLO EN PANPADATA)
    ========================================= */
 .fixed-footer {
   flex-shrink: 0;
@@ -246,6 +344,6 @@ textarea {
 .partners-logos img {
   height: 28px;
   width: auto;
-  max-width: 22%; /* Evita que los 4 logos se corten en pantallas angostas */
+  max-width: 22%;
   object-fit: contain;
 }
