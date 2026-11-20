@@ -9,38 +9,81 @@ body {
   background-color: #f4f6f5;
   color: #333;
   display: flex;
-  justify-content: center;
-  align-items: flex-start;
+  flex-direction: column;
+  align-items: center;
   min-height: 100vh;
-  padding: 20px 10px;
+  padding: 140px 10px 100px 10px; /* Respaldo inicial antes del ajuste automático */
 }
 
-.container {
-  background: #ffffff;
+/* =========================================
+   ENCABEZADO FIJO SUPERIOR
+   ========================================= */
+.fixed-header {
+  position: fixed;
+  top: 0;
+  left: 0;
   width: 100%;
-  max-width: 480px;
-  padding: 25px;
-  border-radius: 12px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+  background-color: #ffffff;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+  z-index: 1000;
 }
 
-/* Navegación por pestañas */
+.header-inner {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 12px 16px 0 16px;
+}
+
+.app-info-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.app-logo {
+  width: 44px;
+  height: 44px;
+  object-fit: contain;
+  border-radius: 8px;
+  flex-shrink: 0;
+}
+
+.app-text {
+  text-align: left;
+}
+
+.app-title {
+  font-size: 19px;
+  font-weight: 800;
+  color: #2d7738;
+  line-height: 1.1;
+}
+
+.app-subtitle {
+  font-size: 12px;
+  color: #555;
+  margin-top: 3px;
+  line-height: 1.3;
+}
+
+/* Navegación por pestañas dentro del encabezado fijo */
 .tabs-nav {
   display: flex;
-  border-bottom: 2px solid #e0e0e0;
-  margin-bottom: 20px;
+  margin-top: 2px;
 }
 
 .tab-button {
   flex: 1;
-  padding: 12px 5px;
+  padding: 10px 4px;
   background: transparent;
   border: none;
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 700;
   color: #666;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.25s ease;
   border-bottom: 3px solid transparent;
 }
 
@@ -53,7 +96,18 @@ body {
   color: #2d7738;
 }
 
-/* Contenido de pestañas */
+/* =========================================
+   CONTENEDOR PRINCIPAL DE DATOS
+   ========================================= */
+.container {
+  background: #ffffff;
+  width: 100%;
+  max-width: 480px;
+  padding: 22px;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
+}
+
 .tab-content {
   display: none;
 }
@@ -63,7 +117,7 @@ body {
 }
 
 h2 {
-  font-size: 18px;
+  font-size: 17px;
   color: #2d7738;
   margin-bottom: 15px;
   text-align: center;
@@ -113,24 +167,7 @@ textarea {
 }
 
 /* Botones */
-.btn-primary {
-  width: 100%;
-  padding: 12px;
-  background-color: #2d7738;
-  color: #ffffff;
-  border: none;
-  border-radius: 6px;
-  font-size: 15px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-  text-transform: uppercase;
-}
-
-.btn-primary:hover {
-  background-color: #225a2a;
-}
-
+.btn-primary,
 .btn-secondary {
   width: 100%;
   padding: 12px;
@@ -145,6 +182,7 @@ textarea {
   text-transform: uppercase;
 }
 
+.btn-primary:hover,
 .btn-secondary:hover {
   background-color: #225a2a;
 }
@@ -166,101 +204,50 @@ textarea {
 }
 
 .status-message.error {
-  color: #2d7738;
+  color: #c62828;
 }
 
-/* Pie de página y Logos de Programas */
-/* Asegura que el cuerpo de la página se apile verticalmente */
-body {
-  background-color: #f4f6f5;
-  color: #333;
-  display: flex;
-  flex-direction: column; /* Apila el contenido de arriba a abajo */
-  justify-content: flex-start;
-  align-items: center;    /* Centra el contenedor principal */
-  min-height: 100vh;
-  padding: 20px 10px;
-  box-sizing: border-box;
-}
-
-/* El Contenedor principal de ChakiData */
-.container {
-  background: #ffffff;
+/* =========================================
+   PIE DE PÁGINA FIJO INFERIOR (APOYO)
+   ========================================= */
+.fixed-footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
   width: 100%;
-  max-width: 480px;      /* Tamaño óptimo para uso móvil y lectura cómoda */
-  padding: 25px;
-  border-radius: 12px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-  box-sizing: border-box;
-  margin-bottom: 20px;   /* Separación con el fondo si es necesario */
+  background-color: #ffffff;
+  border-top: 1px solid #e0e0e0;
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.06);
+  z-index: 1000;
 }
 
-/* Pie de página de apoyo institucional */
-.partners-footer {
-  margin-top: 30px;      /* Espacio superior para alejarlo de los botones */
-  padding-top: 20px;
-  border-top: 1px solid #e5e7eb; /* Línea sutil de separación */
+.footer-inner {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 8px 14px 10px 14px;
   text-align: center;
 }
 
 .partners-title {
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 800;
-  color: #6b7280;        /* Gris suave para el texto */
+  color: #666;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-  margin-bottom: 16px;
+  letter-spacing: 0.5px;
+  margin-bottom: 6px;
 }
 
-/* Contenedor flexible para los logos */
 .partners-logos {
   display: flex;
   justify-content: center;
   align-items: center;
-  flex-wrap: wrap;       /* Si no caben, bajan de fila de forma natural */
-  gap: 18px;             /* Separación entre logos */
+  flex-wrap: nowrap;
+  gap: 12px;
 }
 
-/* Estilo individual para cada logo */
 .partners-logos img {
-  height: 40px;          /* Altura uniforme para todos */
-  width: auto;           /* Ancho proporcional */
-  max-width: 110px;      /* Evita que se deformen o sean gigantes */
-  object-fit: contain;   /* Conserva sus dimensiones originales */
-  filter: grayscale(10%) contrast(90%); /* Integración visual */
-  transition: transform 0.2s ease, filter 0.2s ease;
-}
-
-/* Efecto sutil al pasar el cursor (escritorio) */
-.partners-logos img:hover {
-  transform: scale(1.05);
-  filter: grayscale(0%) contrast(100%);
-}
-
-/* Navegación por pestañas fija arriba */
-.tabs-nav {
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  background-color: #ffffff; /* Evita que el texto de abajo se transparente al hacer scroll */
-  display: flex;
-  border-bottom: 2px solid #e0e0e0;
-  margin: -25px -25px 20px -25px; /* Compensa el padding de .container para llegar a los bordes */
-  padding: 12px 25px 0 25px;
-  border-radius: 12px 12px 0 0;
-}
-
-/* Pie de página con logos fijo abajo */
-.partners-footer {
-  position: sticky;
-  bottom: 0;
-  z-index: 90;
-  background-color: #ffffff; /* Fondo sólido para cubrir el contenido que pasa por debajo */
-  width: calc(100% + 50px);
-  margin: 25px -25px -25px -25px;
-  padding: 12px 20px 15px 20px;
-  border-top: 1px solid #e0e0e0;
-  border-radius: 0 0 12px 12px;
-  text-align: center;
-  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.04);
+  height: 30px;
+  width: auto;
+  max-width: 95px;
+  object-fit: contain;
 }

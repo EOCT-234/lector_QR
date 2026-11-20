@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title> ChakiData</title>
+  <title> Panpa</title>
   <!-- Enlace directo al archivo style.css en la misma carpeta -->
   <link rel="stylesheet" href="style.css?v=3">
   <!-- Librería para lectura de códigos QR -->
@@ -13,14 +13,29 @@
 
 <body>
 
-  <div class="container">
-    <!-- Navegación por pestañas -->
-    <nav class="tabs-nav">
-      <button class="tab-button active" data-tab="inicio-tab">Inicio</button>
-      <button class="tab-button" data-tab="qr-tab">Lector QR</button>
-      <button class="tab-button" data-tab="sheets-tab">Google Sheets</button>
-    </nav>
+  <!-- ENCABEZADO SIEMPRE FIJO ARRIBA -->
+  <header id="fixed-header" class="fixed-header">
+    <div class="header-inner">
+      <!-- Fila 1: Logo + Nombre del aplicativo + Información -->
+      <div class="app-info-bar">
+        <img src="img/logo-panpadata.png" alt="Logo PanpaData" class="app-logo" onerror="this.style.display='none'" />
+        <div class="app-text">
+          <h1 class="app-title">PanpaData</h1>
+          <p class="app-subtitle">Creación de hojas de trabajo y captura de datos en campo con QR</p>
+        </div>
+      </div>
 
+      <!-- Fila 2: Pestañas de Datos (Inicio, Lector QR, Google Sheets) -->
+      <nav class="tabs-nav">
+        <button class="tab-button active" data-tab="inicio-tab">Inicio</button>
+        <button class="tab-button" data-tab="qr-tab">Lector QR</button>
+        <button class="tab-button" data-tab="sheets-tab">Google Sheets</button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- CONTENIDO CENTRAL DESPLAZABLE -->
+  <main id="main-content" class="container">
     <!-- Pestaña 1: Inicio -->
     <div id="inicio-tab" class="tab-content active">
       <button id="btn-crear-hoja" class="btn-primary">Crear Hoja de Trabajo</button>
@@ -94,11 +109,11 @@
 
       <div id="sheets-status" class="status-message" style="margin-top: 15px;"></div>
     </div>
-  </div>
+  </main>
 
 <!-- Pie de página con logos de programas colaboradores -->
-  <div>
-    <footer class="partners-footer">
+  <footer id="fixed-footer" class="fixed-footer">
+    <div class="footer-inner">
       <p class="partners-title">Con el apoyo de:</p>
       <div class="partners-logos">
         <!-- Reemplaza las rutas src con tus imágenes locales (ej. img/logo1.png) -->
@@ -107,8 +122,23 @@
         <img src="https://raw.githubusercontent.com/EOCT-234/lector_QR/refs/heads/main/logos/CEIGRAS.png" alt="CEIGRAS" />
         <img src="https://raw.githubusercontent.com/EOCT-234/lector_QR/refs/heads/main/logos/LaCiTeS.png" alt="LaCiTeS" />
       </div>
+    </div>
     </footer>
-  </div>
+  <!-- Ajuste automático de espaciado para que el encabezado y pie fijos no tapen nada -->
+  <script>
+    function ajustarEspaciosFijos() {
+      const header = document.getElementById("fixed-header");
+      const footer = document.getElementById("fixed-footer");
+      if (header) {
+        document.body.style.paddingTop = (header.offsetHeight + 16) + "px";
+      }
+      if (footer) {
+        document.body.style.paddingBottom = (footer.offsetHeight + 16) + "px";
+      }
+    }
+    window.addEventListener("load", ajustarEspaciosFijos);
+    window.addEventListener("resize", ajustarEspaciosFijos);
+  </script>
 
   <script src="js/sheets.js"></script>
   <script src="js/qrScanner.js"></script>
