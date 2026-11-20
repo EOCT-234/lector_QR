@@ -168,3 +168,41 @@ textarea {
 .status-message.error {
   color: #2d7738;
 }
+
+/* Pie de página y Logos de Programas */
+.partners-footer {
+  margin-top: 25px;
+  padding-top: 15px;
+  border-top: 1px solid #e0e0e0;
+  text-align: center;
+}
+
+.partners-title {
+  font-size: 11px;
+  font-weight: 700;
+  color: #777;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 12px;
+}
+
+.partners-logos {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.partners-logos img {
+  max-height: 45px;
+  max-width: 120px;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  transition: transform 0.2s ease;
+}
+
+.partners-logos img:hover {
+  transform: scale(1.05);
+}
