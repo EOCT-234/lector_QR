@@ -170,39 +170,69 @@ textarea {
 }
 
 /* Pie de página y Logos de Programas */
+/* Asegura que el cuerpo de la página se apile verticalmente */
+body {
+  background-color: #f4f6f5;
+  color: #333;
+  display: flex;
+  flex-direction: column; /* Apila el contenido de arriba a abajo */
+  justify-content: flex-start;
+  align-items: center;    /* Centra el contenedor principal */
+  min-height: 100vh;
+  padding: 20px 10px;
+  box-sizing: border-box;
+}
+
+/* El Contenedor principal de ChakiData */
+.container {
+  background: #ffffff;
+  width: 100%;
+  max-width: 480px;      /* Tamaño óptimo para uso móvil y lectura cómoda */
+  padding: 25px;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+  box-sizing: border-box;
+  margin-bottom: 20px;   /* Separación con el fondo si es necesario */
+}
+
+/* Pie de página de apoyo institucional */
 .partners-footer {
-  margin-top: 25px;
-  padding-top: 15px;
-  border-top: 1px solid #e0e0e0;
+  margin-top: 30px;      /* Espacio superior para alejarlo de los botones */
+  padding-top: 20px;
+  border-top: 1px solid #e5e7eb; /* Línea sutil de separación */
   text-align: center;
 }
 
 .partners-title {
   font-size: 11px;
-  font-weight: 700;
-  color: #777;
+  font-weight: 800;
+  color: #6b7280;        /* Gris suave para el texto */
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-  margin-bottom: 12px;
+  letter-spacing: 0.05em;
+  margin-bottom: 16px;
 }
 
+/* Contenedor flexible para los logos */
 .partners-logos {
   display: flex;
   justify-content: center;
   align-items: center;
-  flex-wrap: wrap;
-  gap: 16px;
+  flex-wrap: wrap;       /* Si no caben, bajan de fila de forma natural */
+  gap: 18px;             /* Separación entre logos */
 }
 
+/* Estilo individual para cada logo */
 .partners-logos img {
-  max-height: 45px;
-  max-width: 120px;
-  width: auto;
-  height: auto;
-  object-fit: contain;
-  transition: transform 0.2s ease;
+  height: 40px;          /* Altura uniforme para todos */
+  width: auto;           /* Ancho proporcional */
+  max-width: 110px;      /* Evita que se deformen o sean gigantes */
+  object-fit: contain;   /* Conserva sus dimensiones originales */
+  filter: grayscale(10%) contrast(90%); /* Integración visual */
+  transition: transform 0.2s ease, filter 0.2s ease;
 }
 
+/* Efecto sutil al pasar el cursor (escritorio) */
 .partners-logos img:hover {
   transform: scale(1.05);
+  filter: grayscale(0%) contrast(100%);
 }
