@@ -1,14 +1,16 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Evaluación Agrícola</title>
+  <title> ChakiData</title>
   <!-- Enlace directo al archivo style.css en la misma carpeta -->
   <link rel="stylesheet" href="style.css">
   <!-- Librería para lectura de códigos QR -->
   <script src="https://unpkg.com/html5-qrcode"></script>
 </head>
+
 <body>
 
   <div class="container">
@@ -21,19 +23,20 @@
 
     <!-- Pestaña 1: Inicio -->
     <div id="inicio-tab" class="tab-content active">
-      <button id="btn-crear-hoja" class="btn-primary">CREAR HOJA DE TRABAJO</button>
+      <button id="btn-crear-hoja" class="btn-primary">Crear Hoja de Trabajo</button>
 
       <div class="form-group" style="margin-top: 15px;">
-        <label for="nuevo-enlace">NUEVO ENLACE:</label>
+        <label for="nuevo-enlace">Nuevo enlace:</label>
         <input type="text" id="nuevo-enlace" readonly placeholder="El enlace aparecerá aquí..." />
-        <button id="btn-copiar-enlace" class="btn-secondary" style="margin-top: 8px;">COPIAR ENLACE</button>
+        <button id="btn-copiar-enlace" class="btn-secondary" style="margin-top: 8px;">Copiar Enlace</button>
       </div>
 
       <hr style="margin: 20px 0; border: 0; border-top: 1px solid #eee;" />
 
       <div class="form-group">
         <label for="variables-textarea">AGREGAR VARIABLES:</label>
-        <textarea id="variables-textarea" rows="5" placeholder="Ejemplo:&#10;Altura de planta&#10;Diámetro de tallo&#10;Número de frutos&#10;Peso fresco"></textarea>
+        <textarea id="variables-textarea" rows="5"
+          placeholder="Altura de planta&#10;Diámetro de tallo&#10;Número de frutos&#10;Peso fresco"></textarea>
       </div>
 
       <button id="btn-subir-variables" class="btn-primary">SUBIR VARIABLES</button>
@@ -55,12 +58,13 @@
     <!-- Pestaña 3: Google Sheets -->
     <div id="sheets-tab" class="tab-content">
       <h2>Registro de Evaluación</h2>
-      
+
       <form id="evaluation-form">
         <div class="form-group">
           <label for="sheet-url">URL de Google Sheets:</label>
           <input type="url" id="sheet-url" placeholder="https://docs.google.com/spreadsheets/d/..." required />
-          <button type="button" id="btn-cargar-variables" class="btn-secondary" style="margin-top: 8px;">CARGAR VARIABLES</button>
+          <button type="button" id="btn-cargar-variables" class="btn-secondary" style="margin-top: 8px;">CARGAR
+            VARIABLES</button>
         </div>
 
         <div class="form-group">
@@ -71,7 +75,7 @@
         <div class="form-group">
           <label for="variable-select">Variable:</label>
           <select id="variable-select" required>
-            <option value="">-- Primero carga las variables --</option>
+            <option value="">- Primero carga las variables -</option>
           </select>
         </div>
 
@@ -96,4 +100,5 @@
   <script src="js/qrScanner.js"></script>
   <script src="js/main.js"></script>
 </body>
+
 </html>

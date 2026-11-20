@@ -106,7 +106,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // EVENTO 3: Subir Variables
+// EVENTO 3: Subir Variables (con código de 4 letras)
   if (btnSubirVariables) {
     btnSubirVariables.addEventListener("click", async () => {
       const sheetUrl = inputNuevoEnlace ? inputNuevoEnlace.value.trim() : "";
@@ -124,28 +124,39 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
       }
 
-      // Convertir el texto multilinea a un arreglo limpiando líneas vacías
+      // Convertir cada línea en { variable, codigo }
       const listaVariables = texto
         .split("\n")
         .map((v) => v.trim())
-        .filter(Boolean);
+        .filter(Boolean)
+        .map((nombre) => {
+          // Elimina espacios internos opcionalmente o toma directo los 4 primeros caracteres
+          const limpio = nombre.replace(/\s+/g, ""); 
+          const codigo = limpio.substring(0, 4).toUpperCase();
+          return {
+            variable: nombre,
+            codigo: codigo
+          };
+        });
 
-      inicioStatus.textContent = "Subiendo variables a Google Sheets...";
+      inicioStatus.textContent = "Subiendo variables y códigos a Google Sheets...";
       inicioStatus.className = "status-message info";
+      btnSubirVariables.disabled = true;
 
       try {
         await addMultipleVariablesToSheet(sheetUrl, listaVariables);
-        inicioStatus.textContent = `¡Se subieron ${listaVariables.length} variables exitosamente!`;
+        inicioStatus.textContent = `¡Se subieron ${listaVariables.length} variables con sus códigos!`;
         inicioStatus.className = "status-message success";
         textareaVariables.value = "";
         textareaVariables.style.height = "auto";
       } catch (error) {
         inicioStatus.textContent = "Error: " + error.message;
         inicioStatus.className = "status-message error";
+      } finally {
+        btnSubirVariables.disabled = false;
       }
     });
   }
-
   // EVENTO 4: Cargar Variables en la pestaña Google Sheets
   if (btnCargarVariables) {
     btnCargarVariables.addEventListener("click", async () => {
@@ -170,10 +181,15 @@ document.addEventListener("DOMContentLoaded", () => {
           return;
         }
 
-        variables.forEach((v) => {
+variables.forEach((item) => {
           const option = document.createElement("option");
-          option.value = v;
-          option.textContent = v;
+          if (typeof item === "object" && item !== null) {
+            option.value = item.codigo;
+            option.textContent = `${item.variable} (${item.codigo})`;
+          } else {
+            option.value = item;
+            option.textContent = item;
+          }
           variableSelect.appendChild(option);
         });
 

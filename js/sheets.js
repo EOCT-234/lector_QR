@@ -1,5 +1,5 @@
 // URL desplegada de Google Apps Script
-const SAVE_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbx4739QWxga8PsjGV7S0day0Xi4V7WPg9_p17gbzubTGY1BwGXLoe-0FzOkj6fOD7gY/exec";
+const SAVE_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyzDtB6uJqGGj4zLaFPdiRQ3Qtu-epjRkBUYE5FDu0QTFRDaa1OLMWjO9S7v6D_LMTv_g/exec";
 
 /**
  * Función helper para realizar peticiones mediante JSONP (evita bloqueos de CORS)
@@ -109,21 +109,12 @@ async function saveRecordToSheets(data) {
     data.sheetUrl = copiaResult.sheetUrl;
   }
 
-  const payload = {
+  return await callAppsScriptJSONP({
     action: "guardar_registro",
-    sheetUrl: data.sheetUrl,
+    sheetUrl: data.sheetUrl.trim(),
     accesion: data.accesion || "",
     variable: data.variable || "",
     repeticion: data.repeticion || "",
     medicion: data.medicion || ""
-  };
-
-  await fetch(SAVE_WEB_APP_URL, {
-    method: "POST",
-    mode: "no-cors",
-    headers: { "Content-Type": "text/plain;charset=utf-8" },
-    body: JSON.stringify(payload)
   });
-
-  return { status: "success", sheetUrl: data.sheetUrl };
 }
