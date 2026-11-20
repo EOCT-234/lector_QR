@@ -5,73 +5,80 @@
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-body {
+html, body {
+  height: 100%;
+  height: 100dvh; /* Alto dinámico real en celulares */
+  overflow: hidden; /* Evita que toda la pantalla se deslice */
   background-color: #f4f6f5;
   color: #333;
+}
+
+/* Estructura principal de 3 bloques (Header fijo + Centro scrollable + Footer fijo) */
+.app-shell {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  min-height: 100vh;
-  padding: 140px 10px 100px 10px; /* Respaldo inicial antes del ajuste automático */
+  height: 100%;
+  height: 100dvh;
+  width: 100%;
 }
 
 /* =========================================
-   ENCABEZADO FIJO SUPERIOR
+   1. ENCABEZADO FIJO SUPERIOR
    ========================================= */
 .fixed-header {
-  position: fixed;
-  top: 0;
-  left: 0;
+  flex-shrink: 0;
   width: 100%;
   background-color: #ffffff;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
-  z-index: 1000;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  z-index: 100;
+  padding-top: env(safe-area-inset-top, 0px);
 }
 
 .header-inner {
   max-width: 480px;
   margin: 0 auto;
-  padding: 12px 16px 0 16px;
+  padding: 10px 14px 0 14px;
 }
 
 .app-info-bar {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding-bottom: 10px;
+  gap: 10px;
+  padding-bottom: 8px;
   border-bottom: 1px solid #f0f0f0;
 }
 
 .app-logo {
-  width: 44px;
-  height: 44px;
+  width: 40px;
+  height: 40px;
   object-fit: contain;
   border-radius: 8px;
   flex-shrink: 0;
 }
 
 .app-text {
-  text-align: left;
+  flex: 1;
+  min-width: 0;
 }
 
 .app-title {
-  font-size: 19px;
+  font-size: 18px;
   font-weight: 800;
   color: #2d7738;
-  line-height: 1.1;
+  line-height: 1.15;
 }
 
 .app-subtitle {
-  font-size: 12px;
+  font-size: 11.5px;
   color: #555;
-  margin-top: 3px;
+  margin-top: 2px;
   line-height: 1.3;
+  white-space: normal; /* Permite saltar de línea sin recortarse */
+  overflow: visible;
 }
 
-/* Navegación por pestañas dentro del encabezado fijo */
 .tabs-nav {
   display: flex;
-  margin-top: 2px;
 }
 
 .tab-button {
@@ -79,12 +86,12 @@ body {
   padding: 10px 4px;
   background: transparent;
   border: none;
-  font-size: 14px;
+  font-size: 13.5px;
   font-weight: 700;
   color: #666;
   cursor: pointer;
-  transition: all 0.25s ease;
   border-bottom: 3px solid transparent;
+  transition: all 0.2s ease;
 }
 
 .tab-button.active {
@@ -92,20 +99,26 @@ body {
   border-bottom-color: #2d7738;
 }
 
-.tab-button:hover {
-  color: #2d7738;
+/* =========================================
+   2. ZONA CENTRAL CON SCROLL PROPIO
+   ========================================= */
+.main-scroll {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch; /* Scroll suave en iOS/Android */
+  padding: 14px 10px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
 }
 
-/* =========================================
-   CONTENEDOR PRINCIPAL DE DATOS
-   ========================================= */
 .container {
   background: #ffffff;
   width: 100%;
   max-width: 480px;
-  padding: 22px;
+  padding: 20px;
   border-radius: 12px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
 }
 
 .tab-content {
@@ -119,23 +132,22 @@ body {
 h2 {
   font-size: 17px;
   color: #2d7738;
-  margin-bottom: 15px;
+  margin-bottom: 14px;
   text-align: center;
 }
 
-/* Formularios e Inputs */
 .form-group {
-  margin-bottom: 15px;
+  margin-bottom: 14px;
 }
 
 label {
   display: block;
-  font-size: 13px;
+  font-size: 12.5px;
   font-weight: bold;
   color: #444;
-  margin-bottom: 6px;
+  margin-bottom: 5px;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.4px;
 }
 
 input[type="text"],
@@ -149,7 +161,6 @@ textarea {
   border-radius: 6px;
   font-size: 14px;
   background-color: #fafafa;
-  transition: border-color 0.3s ease;
 }
 
 input:focus,
@@ -162,11 +173,10 @@ textarea:focus {
 
 textarea {
   resize: vertical;
-  min-height: 100px;
+  min-height: 90px;
   line-height: 1.4;
 }
 
-/* Botones */
 .btn-primary,
 .btn-secondary {
   width: 100%;
@@ -175,10 +185,9 @@ textarea {
   color: #ffffff;
   border: none;
   border-radius: 6px;
-  font-size: 15px;
+  font-size: 14.5px;
   font-weight: bold;
   cursor: pointer;
-  transition: background-color 0.3s ease;
   text-transform: uppercase;
 }
 
@@ -187,7 +196,6 @@ textarea {
   background-color: #225a2a;
 }
 
-/* Mensajes de Estado */
 .status-message {
   font-size: 13px;
   font-weight: 600;
@@ -195,36 +203,27 @@ textarea {
   word-break: break-word;
 }
 
-.status-message.info {
-  color: #0288d1;
-}
-
-.status-message.success {
-  color: #2d7738;
-}
-
-.status-message.error {
-  color: #c62828;
-}
+.status-message.info { color: #0288d1; }
+.status-message.success { color: #2d7738; }
+.status-message.error { color: #c62828; }
 
 /* =========================================
-   PIE DE PÁGINA FIJO INFERIOR (APOYO)
+   3. PIE DE PÁGINA FIJO INFERIOR (APOYO)
    ========================================= */
 .fixed-footer {
-  position: fixed;
-  bottom: 0;
-  left: 0;
+  flex-shrink: 0;
   width: 100%;
   background-color: #ffffff;
   border-top: 1px solid #e0e0e0;
-  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.06);
-  z-index: 1000;
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.06);
+  z-index: 100;
+  padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px));
 }
 
 .footer-inner {
   max-width: 480px;
   margin: 0 auto;
-  padding: 8px 14px 10px 14px;
+  padding: 8px 10px 2px 10px;
   text-align: center;
 }
 
@@ -239,15 +238,14 @@ textarea {
 
 .partners-logos {
   display: flex;
-  justify-content: center;
+  justify-content: space-around;
   align-items: center;
-  flex-wrap: nowrap;
-  gap: 12px;
+  gap: 8px;
 }
 
 .partners-logos img {
-  height: 30px;
+  height: 28px;
   width: auto;
-  max-width: 95px;
+  max-width: 22%; /* Evita que los 4 logos se corten en pantallas angostas */
   object-fit: contain;
 }
